@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agent Builder — Cantellus Group Workshop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:   #1B2245;  --navy-dk: #10142C;
+      --blue:   #3670BD;  --blue-m:  #2D5FA8;  --blue-grp: #2F7EC7;
+      --lt:     #C5D5EB;  --pale:    #EBF2FA;
+      --white:  #FFFFFF;
+      --g50:    #F8FAFC;  --g100: #F1F5F9;  --g200: #E2E8F0;
+      --g400:   #94A3B8;  --g500: #64748B;  --g700: #334155;
+      --green:  #10B981;  --green-bg:#ECFDF5;  --green-b:#A7F3D0;
+      --amber:  #F59E0B;  --amber-bg:#FFFBEB;  --amber-b:#FCD34D;
+      --red:    #EF4444;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:var(--g50);color:var(--navy);min-height:100vh}
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    .hdr{
+      background:var(--white);height:64px;padding:0 48px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:relative;overflow:hidden;
+      border-bottom:1px solid var(--g200);
+    }
+    .hdr::after{content:'';position:absolute;right:-30px;top:-30px;width:160px;height:160px;
+      background:var(--navy);opacity:.05;transform:rotate(45deg);}
+    .hdr::before{content:'';position:absolute;right:50px;top:-50px;width:120px;height:120px;
+      background:var(--blue);opacity:.06;transform:rotate(45deg);}
+    .logo{display:flex;align-items:center;gap:11px;z-index:1}
+    .logo svg{flex-shrink:0}
+    .logo-words{line-height:1}
+    .logo-name{color:var(--navy);font-size:17px;font-weight:700;letter-spacing:-.3px;display:block}
+    .logo-grp {color:var(--blue-grp);font-size:12px;font-weight:500;display:block;margin-top:1px}
+    .wkshp-tag{color:var(--g500);font-size:11px;font-weight:500;
+      letter-spacing:1.8px;text-transform:uppercase;z-index:1}
+
+    /* ── LAYOUT ─────────────────────────────────────────────── */
+    .main{max-width:780px;margin:0 auto;padding:48px 24px 80px}
+
+    /* ── API BAR ─────────────────────────────────────────────── */
+    .api-bar{background:var(--amber-bg);border:1.5px solid var(--amber-b);border-radius:10px;
+      padding:14px 18px;margin-bottom:28px;display:none}
+    .api-bar.show{display:block}
+    .api-bar label{font-size:13px;font-weight:600;color:#92400E;display:block;margin-bottom:6px}
+    .api-bar input{width:100%;padding:9px 13px;border:1.5px solid var(--amber-b);border-radius:7px;
+      font-family:'Inter',monospace;font-size:13px;color:var(--navy);outline:none}
+
+    /* ── STEPPER ─────────────────────────────────────────────── */
+    .stepper{display:flex;align-items:center;margin-bottom:36px}
+    .s-item{display:flex;align-items:center;gap:7px}
+    .s-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;transition:all .25s}
+    .s-num.done  {background:var(--navy);color:#fff}
+    .s-num.active{background:var(--blue);color:#fff;box-shadow:0 0 0 4px rgba(54,112,189,.2)}
+    .s-num.pend  {background:var(--g200);color:var(--g500)}
+    .s-lbl{font-size:13px;font-weight:500;color:var(--g400);white-space:nowrap}
+    .s-lbl.active{color:var(--navy)}
+    .s-line{flex:1;height:2px;background:var(--g200);margin:0 8px;transition:background .25s}
+    .s-line.done{background:var(--navy)}
+
+    /* ── PANELS ─────────────────────────────────────────────── */
+    .panel{background:var(--white);border-radius:14px;padding:40px;
+      box-shadow:0 1px 4px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.04);
+      display:none;animation:fadeUp .3s ease}
+    .panel.active{display:block}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    .p-step {font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:5px}
+    .p-title{font-size:25px;font-weight:700;line-height:1.25;margin-bottom:8px}
+    .p-sub  {font-size:15px;color:var(--g500);line-height:1.65;margin-bottom:26px}
+
+    .insight{background:var(--pale);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;
+      padding:13px 17px;margin-bottom:26px;font-size:13.5px;color:var(--navy);line-height:1.65}
+    .insight strong{font-weight:600}
+
+    /* form basics */
+    .fg{margin-bottom:22px}
+    .fl{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:5px}
+    .fh{font-size:12.5px;color:var(--g500);margin-bottom:7px}
+    textarea,input[type=text],input[type=date],input[type=url],select{
+      width:100%;padding:10px 14px;border:1.5px solid var(--g200);border-radius:8px;
+      font-family:'Inter',sans-serif;font-size:14px;color:var(--navy);background:var(--white);
+      resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s;line-height:1.6}
+    textarea:focus,input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(54,112,189,.1)}
+    textarea{min-height:88px}
+
+    /* radio */
+    .rb-grp{display:flex;gap:10px}
+    .rb-item{flex:1;padding:12px 14px;border:1.5px solid var(--g200);border-radius:8px;
+      cursor:pointer;text-align:center;transition:all .15s}
+    .rb-item:hover{border-color:var(--blue)}
+    .rb-item.on{border-color:var(--blue);background:var(--pale)}
+    .rb-item input{display:none}
+    .rb-txt{font-size:14px;font-weight:500;color:var(--navy)}
+
+    /* btn row */
+    .btn-row{display:flex;justify-content:space-between;align-items:center;
+      margin-top:32px;padding-top:22px;border-top:1px solid var(--g100)}
+    .btn{padding:10px 24px;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;
+      font-weight:600;cursor:pointer;border:none;transition:all .2s}
+    .btn-ghost{background:transparent;color:var(--g500);border:1.5px solid var(--g200)}
+    .btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+    .btn-pri{background:var(--blue);color:#fff}
+    .btn-pri:hover{background:var(--blue-m);transform:translateY(-1px);box-shadow:0 4px 14px rgba(54,112,189,.35)}
+    .btn-launch{background:var(--navy);color:#fff;padding:13px 32px;font-size:15px}
+    .btn-launch:hover{background:var(--navy-dk);transform:translateY(-1px);box-shadow:0 6px 20px rgba(27,34,69,.3)}
+
+    /* ── CONNECTION CARDS (Step 2) ───────────────────────────── */
+    .conn-grid{display:flex;flex-direction:column;gap:12px}
+    .conn-card{border:1.5px solid var(--g200);border-radius:10px;overflow:hidden;transition:border-color .2s}
+    .conn-card.live{border-color:var(--green)}
+    .conn-head{display:flex;align-items:center;gap:12px;padding:16px}
+    .conn-icon{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;
+      justify-content:center;font-size:20px;flex-shrink:0;background:var(--pale)}
+    .conn-info{flex:1}
+    .conn-name{font-size:14px;font-weight:600;color:var(--navy)}
+    .conn-desc{font-size:12.5px;color:var(--g500);margin-top:1px}
+    .conn-badge{font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;flex-shrink:0;white-space:nowrap}
+    .conn-badge.off{background:var(--g100);color:var(--g500)}
+    .conn-badge.on {background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+    .conn-body{border-top:1.5px solid var(--g100);padding:16px;background:var(--g50)}
+    .conn-url-row{display:flex;gap:8px;align-items:center}
+    .conn-url-row input{flex:1;font-size:13px;padding:9px 12px}
+    .conn-url-row .url-label{font-size:12px;font-weight:600;color:var(--g500);
+      white-space:nowrap;min-width:32px}
+    .test-btn,.save-conn{background:var(--blue);color:#fff;border:none;border-radius:7px;
+      padding:9px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+      cursor:pointer;white-space:nowrap;transition:background .2s}
+    .test-btn:hover,.save-conn:hover{background:var(--blue-m)}
+    .test-btn:disabled{opacity:.5;cursor:not-allowed}
+    .conn-result{margin-top:10px;font-size:13px;line-height:1.6;display:none}
+    .conn-result.show{display:block}
+    .conn-result.ok  {color:var(--green)}
+    .conn-result.err {color:var(--red)}
+    .conn-note{font-size:12px;color:var(--g500);margin-top:6px;font-style:italic}
+    .locked-badge{background:var(--navy);color:#fff;font-size:11px;font-weight:600;
+      padding:3px 8px;border-radius:4px;letter-spacing:.5px}
+
+    /* ── FORM BUILDER (Step 3) ───────────────────────────────── */
+    .field-list{display:flex;flex-direction:column;gap:0;border:1.5px solid var(--g200);border-radius:10px;overflow:hidden}
+    .field-row{display:flex;align-items:center;gap:12px;padding:14px 16px;
+      background:var(--white);border-bottom:1px solid var(--g100)}
+    .field-row:last-child{border-bottom:none}
+    .field-row.locked{background:var(--g50)}
+    .field-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+    .field-info{flex:1}
+    .field-name{font-size:14px;font-weight:600;color:var(--navy)}
+    .field-hint{font-size:12.5px;color:var(--g500);margin-top:1px}
+    .field-req{font-size:11px;font-weight:600;color:var(--blue);letter-spacing:.5px;
+      background:var(--pale);padding:2px 7px;border-radius:4px;flex-shrink:0}
+    /* toggle switch */
+    .toggle{position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer}
+    .toggle input{opacity:0;width:0;height:0}
+    .toggle-track{position:absolute;inset:0;background:var(--g200);border-radius:11px;transition:.2s}
+    .toggle input:checked + .toggle-track{background:var(--blue)}
+    .toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;
+      border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .toggle input:checked ~ .toggle-thumb{left:21px}
+
+    /* activity tags */
+    .act-section{margin-top:14px;padding:14px 16px;background:var(--pale);
+      border-radius:8px;display:none}
+    .act-section.open{display:block}
+    .act-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+    .act-tag{display:flex;align-items:center;gap:5px;background:var(--white);
+      border:1.5px solid var(--lt);border-radius:20px;padding:5px 10px 5px 13px;
+      font-size:13px;font-weight:500;color:var(--navy)}
+    .act-tag button{background:none;border:none;cursor:pointer;color:var(--g400);
+      font-size:14px;line-height:1;padding:0;transition:color .15s}
+    .act-tag button:hover{color:var(--red)}
+    .act-add-row{display:flex;gap:8px}
+    .act-add-row input{flex:1;padding:8px 12px;font-size:13px}
+    .act-add-btn{background:var(--navy);color:#fff;border:none;border-radius:7px;
+      padding:8px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+
+    /* ── PROMPT PREVIEW ─────────────────────────────────────── */
+    .prompt-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .prompt-badge{background:var(--navy);color:#fff;font-size:10px;font-weight:700;
+      letter-spacing:1px;padding:3px 9px;border-radius:4px}
+    .prompt-box{background:var(--g50);border:1.5px solid var(--g200);border-radius:9px;
+      padding:18px;font-size:12.5px;line-height:1.8;color:var(--navy);white-space:pre-wrap;
+      word-break:break-word;max-height:340px;overflow-y:auto;font-family:'Inter',monospace}
+
+    /* ── INTAKE FORM ─────────────────────────────────────────── */
+    .intake-wrap{display:none;animation:fadeUp .3s ease}
+    .intake-wrap.show{display:block}
+    .intake-card{background:var(--white);border-radius:14px;padding:40px;
+      box-shadow:0 1px 4px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.04)}
+    .intake-top{display:flex;align-items:center;gap:16px;margin-bottom:32px;
+      padding-bottom:24px;border-bottom:1px solid var(--g100)}
+    .intake-avatar{width:52px;height:52px;background:var(--pale);border-radius:12px;
+      display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+    .intake-title{font-size:22px;font-weight:700;color:var(--navy)}
+    .intake-sub  {font-size:14px;color:var(--g500);margin-top:3px}
+
+    .if-group{margin-bottom:24px}
+    .if-label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:8px}
+    .if-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+
+    /* pill buttons */
+    .if-pills{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{background:var(--g100);color:var(--g700);border:1.5px solid var(--g200);
+      border-radius:20px;padding:8px 18px;font-family:'Inter',sans-serif;
+      font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+    .pill:hover{border-color:var(--blue);background:var(--pale);color:var(--navy)}
+    .pill.on{background:var(--pale);border-color:var(--blue);color:var(--navy);font-weight:600}
+
+    /* activity checkboxes */
+    .if-checks{display:flex;flex-wrap:wrap;gap:8px}
+    .if-check{display:flex;align-items:center;gap:7px;background:var(--g100);
+      border:1.5px solid var(--g200);border-radius:8px;padding:9px 14px;cursor:pointer;
+      font-size:14px;font-weight:500;color:var(--g700);transition:all .15s;user-select:none}
+    .if-check:hover{border-color:var(--blue);background:var(--pale);color:var(--navy)}
+    .if-check.on {border-color:var(--blue);background:var(--pale);color:var(--navy);font-weight:600}
+    .if-check input{display:none}
+    .if-check-box{width:16px;height:16px;border:2px solid var(--g400);border-radius:4px;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+    .if-check.on .if-check-box{background:var(--blue);border-color:var(--blue);color:#fff;font-size:10px}
+
+    .build-btn{width:100%;padding:15px;background:var(--navy);color:#fff;border:none;
+      border-radius:10px;font-family:'Inter',sans-serif;font-size:16px;font-weight:700;
+      cursor:pointer;transition:all .2s;margin-top:8px}
+    .build-btn:hover{background:var(--navy-dk);transform:translateY(-1px);
+      box-shadow:0 6px 20px rgba(27,34,69,.3)}
+    .build-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+    /* ── LOADING ─────────────────────────────────────────────── */
+    .loading-wrap{display:none;text-align:center;padding:60px 24px}
+    .loading-wrap.show{display:block;animation:fadeUp .3s ease}
+    .spinner{width:44px;height:44px;border:3px solid var(--lt);border-top-color:var(--blue);
+      border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-title{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:6px}
+    .loading-sub{font-size:14px;color:var(--g500)}
+
+    /* ── PACKING LIST RESULT ─────────────────────────────────── */
+    .result-wrap{display:none;animation:fadeUp .3s ease}
+    .result-wrap.show{display:block}
+    .result-card{background:var(--white);border-radius:14px;
+      box-shadow:0 1px 4px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.04);overflow:hidden}
+    .result-top{background:var(--navy);padding:24px 32px;display:flex;
+      align-items:flex-start;justify-content:space-between;gap:16px}
+    .result-trip-name{font-size:20px;font-weight:700;color:#fff}
+    .result-trip-meta{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px}
+    .result-again{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.3);
+      border-radius:7px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:13px;
+      font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s;flex-shrink:0}
+    .result-again:hover{background:rgba(255,255,255,.25)}
+    .result-body{padding:28px 32px}
+    .list-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:560px){.list-grid{grid-template-columns:1fr}}
+    .list-section{background:var(--g50);border:1.5px solid var(--g200);border-radius:10px;padding:16px 18px}
+    .list-section-title{font-size:13px;font-weight:700;color:var(--blue);
+      text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+    .list-section ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+    .list-section li{font-size:14px;color:var(--navy);line-height:1.5;
+      display:flex;align-items:flex-start;gap:8px}
+    .list-section li::before{content:'•';color:var(--lt);font-size:16px;margin-top:-1px;flex-shrink:0}
+    .list-section li em{color:var(--g500);font-style:normal;font-size:13px}
+    .tips-section{margin-top:16px;background:var(--pale);border:1.5px solid var(--lt);
+      border-radius:10px;padding:16px 18px}
+    .tips-section-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px}
+    .tips-section p{font-size:14px;color:var(--g700);line-height:1.6}
+    .result-footer{display:flex;gap:10px;padding:0 32px 24px;justify-content:flex-end}
+    .dl-btn{background:var(--pale);color:var(--blue);border:1.5px solid var(--lt);
+      border-radius:7px;padding:9px 18px;font-family:'Inter',sans-serif;font-size:13px;
+      font-weight:600;cursor:pointer;transition:background .2s}
+    .dl-btn:hover{background:var(--lt)}
+
+    /* ── BLUEPRINT BAR ───────────────────────────────────────── */
+    .bp-bar{margin-top:12px;background:var(--pale);border:1.5px solid var(--lt);border-radius:10px;
+      padding:14px 18px;display:none;align-items:center;justify-content:space-between;gap:14px}
+    .bp-bar.show{display:flex}
+    .bp-bar strong{font-size:14px;font-weight:600;color:var(--navy)}
+    .bp-bar p{font-size:12.5px;color:var(--g500);margin-top:2px}
+    .bp-btn{background:var(--navy);color:#fff;border:none;border-radius:7px;
+      padding:9px 18px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+      cursor:pointer;white-space:nowrap;flex-shrink:0}
+    .bp-btn:hover{background:var(--navy-dk)}
+
+    footer{text-align:center;padding:28px 24px;font-size:12px;color:var(--g400)}
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ════════════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="logo">
+    <svg width="46" height="38" viewBox="0 0 46 38" fill="none">
+      <polygon points="0,6 9,0 9,38 0,32" fill="#0F142A"/>
+      <rect x="9" y="0"  width="37" height="12" fill="#1B2245"/>
+      <rect x="9" y="26" width="37" height="12" fill="#1B2245"/>
+      <rect x="9" y="0"  width="13" height="38" fill="#1B2245"/>
+      <rect x="22" y="15" width="24" height="8"  fill="#3670BD"/>
+    </svg>
+    <div class="logo-words">
+      <span class="logo-name">Cantellus</span>
+      <span class="logo-grp">Group</span>
+    </div>
+  </div>
+  <div class="wkshp-tag">Agent Builder Workshop</div>
+</header>
+
+<!-- ═══ MAIN ══════════════════════════════════════════════════ -->
+<main class="main">
+
+  <div class="api-bar" id="apiBar">
+    <label>⚠️ Workshop setup — enter your Anthropic API key to continue</label>
+    <input type="password" id="apiInput" placeholder="sk-ant-api03-…"/>
+  </div>
+
+  <!-- Stepper -->
+  <div class="stepper" id="stepper">
+    <div class="s-item"><div class="s-num active" id="sn1">1</div><div class="s-lbl active" id="sl1">Outcome</div></div>
+    <div class="s-line" id="sc1"></div>
+    <div class="s-item"><div class="s-num pend" id="sn2">2</div><div class="s-lbl" id="sl2">Connect</div></div>
+    <div class="s-line" id="sc2"></div>
+    <div class="s-item"><div class="s-num pend" id="sn3">3</div><div class="s-lbl" id="sl3">Form</div></div>
+    <div class="s-line" id="sc3"></div>
+    <div class="s-item"><div class="s-num pend" id="sn4">4</div><div class="s-lbl" id="sl4">Launch</div></div>
+  </div>
+
+  <!-- ── STEP 1: OUTCOME ── -->
+  <div class="panel active" id="p1">
+    <div class="p-step">Step 1 of 4</div>
+    <div class="p-title">What do you want your agent to do?</div>
+    <div class="p-sub">An agent is built around a specific goal. Define it here — the more precise, the more powerful the agent.</div>
+    <div class="insight">
+      <strong>Where we are:</strong> Before we touch any technology, we write the job description.
+      This single statement drives every decision in the next three steps — it's what your agent points back to every time it decides what to do.
+    </div>
+    <div class="fg">
+      <label class="fl">Describe your agent's goal</label>
+      <div class="fh">What problem does it solve? What should it produce?</div>
+      <textarea id="outcome" rows="4">Build me a personalised packing list for my upcoming trip — based on my destination, travel dates, airline rules, and planned activities — so I never forget anything important and never overpack.</textarea>
+    </div>
+    <div class="btn-row">
+      <div></div>
+      <button class="btn btn-pri" onclick="go(2)">Next: Connect Data Sources &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: CONNECT SOURCES ── -->
+  <div class="panel" id="p2">
+    <div class="p-step">Step 2 of 4</div>
+    <div class="p-title">Connect your data sources</div>
+    <div class="p-sub">Agents know where to look for information. Connect the services below by entering their URLs — your agent's instructions will reference these sources when helping you pack.</div>
+    <div class="insight">
+      <strong>Where we are:</strong> Real-world agents are wired to specific websites, tools, and APIs. Here you're telling your agent exactly <em>where</em> to look — your preferred weather site, your airline's baggage page, etc. The weather connection below demonstrates a live API call.
+    </div>
+
+    <div class="conn-grid">
+
+      <!-- Weather -->
+      <div class="conn-card" id="card-wx">
+        <div class="conn-head">
+          <div class="conn-icon">🌤</div>
+          <div class="conn-info">
+            <div class="conn-name">Weather Service</div>
+            <div class="conn-desc">Where your agent checks forecasts</div>
+          </div>
+          <div class="conn-badge off" id="badge-wx">Not connected</div>
+        </div>
+        <div class="conn-body">
+          <div class="conn-url-row">
+            <span class="url-label">URL</span>
+            <input type="url" id="url-wx" value="https://weather.com" placeholder="https://weather.com"/>
+            <button class="test-btn" id="btn-wx" onclick="testWeather()">Test Connection</button>
+          </div>
+          <div class="conn-result" id="res-wx"></div>
+          <div class="conn-note">We'll verify this works by fetching a live sample forecast.</div>
+        </div>
+      </div>
+
+      <!-- Airline -->
+      <div class="conn-card" id="card-air">
+        <div class="conn-head">
+          <div class="conn-icon">✈️</div>
+          <div class="conn-info">
+            <div class="conn-name">Airline Baggage Policy</div>
+            <div class="conn-desc">Where your agent checks bag rules and restrictions</div>
+          </div>
+          <div class="conn-badge off" id="badge-air">Not connected</div>
+        </div>
+        <div class="conn-body">
+          <div class="conn-url-row">
+            <span class="url-label">URL</span>
+            <input type="url" id="url-air" placeholder="e.g. https://www.delta.com/baggage"/>
+            <button class="save-conn" onclick="saveConn('air')">Connect</button>
+          </div>
+          <div class="conn-result" id="res-air"></div>
+          <div class="conn-note">Examples: delta.com/baggage · aa.com/baggage · united.com/baggage</div>
+        </div>
+      </div>
+
+      <!-- Destination guide -->
+      <div class="conn-card" id="card-guide">
+        <div class="conn-head">
+          <div class="conn-icon">🗺</div>
+          <div class="conn-info">
+            <div class="conn-name">Destination Guide</div>
+            <div class="conn-desc">Where your agent looks up local tips, dress codes, and conditions</div>
+          </div>
+          <div class="conn-badge off" id="badge-guide">Not connected</div>
+        </div>
+        <div class="conn-body">
+          <div class="conn-url-row">
+            <span class="url-label">URL</span>
+            <input type="url" id="url-guide" placeholder="e.g. https://www.lonelyplanet.com"/>
+            <button class="save-conn" onclick="saveConn('guide')">Connect</button>
+          </div>
+          <div class="conn-result" id="res-guide"></div>
+          <div class="conn-note">Examples: lonelyplanet.com · tripadvisor.com · timeout.com</div>
+        </div>
+      </div>
+
+      <!-- Travel advisories — pre-connected -->
+      <div class="conn-card live" id="card-adv">
+        <div class="conn-head">
+          <div class="conn-icon">🛡</div>
+          <div class="conn-info">
+            <div class="conn-name">Travel Advisories</div>
+            <div class="conn-desc">US State Department — official travel safety information</div>
+          </div>
+          <div class="conn-badge on">Connected</div>
+        </div>
+        <div class="conn-body">
+          <div class="conn-url-row">
+            <span class="url-label">URL</span>
+            <input type="url" value="https://travel.state.gov/content/travel/en/traveladvisories" readonly
+              style="background:var(--g100);color:var(--g500);cursor:default"/>
+            <span class="locked-badge">LOCKED</span>
+          </div>
+          <div class="conn-note">Pre-connected. Your agent will always reference official travel advisories.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go(1)">&larr; Back</button>
+      <button class="btn btn-pri" onclick="go(3)">Next: Design Your Form &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: FORM BUILDER ── -->
+  <div class="panel" id="p3">
+    <div class="p-step">Step 3 of 4</div>
+    <div class="p-title">Design your intake form</div>
+    <div class="p-sub">Choose which questions your agent asks when someone wants a packing list. Toggle fields on or off — and customise the activity options your users can choose from.</div>
+    <div class="insight">
+      <strong>Where we are:</strong> Instead of a freeform chat, your agent will present a structured form — a much friendlier experience for most users. You're designing that form right now.
+    </div>
+
+    <div class="fg">
+      <label class="fl">Form fields</label>
+      <div class="fh">Required fields are always shown. Toggle optional fields on or off.</div>
+      <div class="field-list" id="fieldList">
+
+        <div class="field-row locked">
+          <div class="field-icon">📍</div>
+          <div class="field-info"><div class="field-name">Destination</div><div class="field-hint">Where are you going?</div></div>
+          <span class="field-req">REQUIRED</span>
+        </div>
+
+        <div class="field-row locked">
+          <div class="field-icon">📅</div>
+          <div class="field-info"><div class="field-name">Travel dates</div><div class="field-hint">Departure and return</div></div>
+          <span class="field-req">REQUIRED</span>
+        </div>
+
+        <div class="field-row">
+          <div class="field-icon">💼</div>
+          <div class="field-info"><div class="field-name">Trip type</div><div class="field-hint">Business / Leisure / Mixed</div></div>
+          <label class="toggle"><input type="checkbox" id="f-triptype" checked onchange="toggleField()">
+            <div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+
+        <div class="field-row">
+          <div class="field-icon">✈️</div>
+          <div class="field-info"><div class="field-name">Airline</div><div class="field-hint">Which carrier?</div></div>
+          <label class="toggle"><input type="checkbox" id="f-airline" checked onchange="toggleField()">
+            <div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+
+        <div class="field-row">
+          <div class="field-icon">🧳</div>
+          <div class="field-info"><div class="field-name">Bag preference</div><div class="field-hint">Carry-on only / Checking a bag</div></div>
+          <label class="toggle"><input type="checkbox" id="f-bag" checked onchange="toggleField()">
+            <div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+
+        <div class="field-row">
+          <div class="field-icon">🗓</div>
+          <div class="field-info">
+            <div class="field-name">Planned activities</div>
+            <div class="field-hint">Checkboxes — edit options below when enabled</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="f-activities" checked onchange="toggleActivities()">
+            <div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+
+        <div class="field-row">
+          <div class="field-icon">👥</div>
+          <div class="field-info"><div class="field-name">Travel companions</div><div class="field-hint">Solo / Couple / Family / Group</div></div>
+          <label class="toggle"><input type="checkbox" id="f-companions" onchange="toggleField()">
+            <div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+
+        <div class="field-row">
+          <div class="field-icon">📝</div>
+          <div class="field-info"><div class="field-name">Special notes</div><div class="field-hint">Free text — anything else to know</div></div>
+          <label class="toggle"><input type="checkbox" id="f-notes" checked onchange="toggleField()">
+            <div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Activity options editor -->
+    <div class="act-section open" id="actSection">
+      <label class="fl" style="margin-bottom:8px">Activity options <span style="font-weight:400;color:var(--g500)">(shown as checkboxes in your form)</span></label>
+      <div class="act-tags" id="actTags"></div>
+      <div class="act-add-row">
+        <input type="text" id="actInput" placeholder="Add an activity option…" onkeydown="if(event.key==='Enter')addActivity()"/>
+        <button class="act-add-btn" onclick="addActivity()">+ Add</button>
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--g100);margin:28px 0"/>
+
+    <div class="fg">
+      <label class="fl">Agent behavior rules <span style="font-weight:400;color:var(--g500)">(optional)</span></label>
+      <div class="fh">Special instructions the agent should always follow when generating the packing list.</div>
+      <textarea id="rules" rows="3" placeholder="e.g. Always flag airline-restricted items. Remind me about international power adapters when travelling abroad.">Always flag items that airlines commonly restrict. Remind me about international power adapters for international trips. If a formal dinner or business event is mentioned, ensure formal attire is on the list.</textarea>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Agent tone</label>
+      <div class="rb-grp" id="toneGrp">
+        <label class="rb-item on" onclick="pickTone(this)">
+          <input type="radio" name="tone" value="friendly and conversational" checked>
+          <div class="rb-txt">Friendly &amp; conversational</div>
+        </label>
+        <label class="rb-item" onclick="pickTone(this)">
+          <input type="radio" name="tone" value="professional and concise">
+          <div class="rb-txt">Professional &amp; concise</div>
+        </label>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go(2)">&larr; Back</button>
+      <button class="btn btn-pri" onclick="go(4)">Review &amp; Launch &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: REVIEW & LAUNCH ── -->
+  <div class="panel" id="p4">
+    <div class="p-step">Step 4 of 4</div>
+    <div class="p-title">Meet your agent</div>
+    <div class="p-sub">Below is your agent's <strong>system prompt</strong> — assembled live from your four decisions. This is the actual instruction set running behind every AI agent. Notice how specific it is to the choices you just made.</div>
+    <div class="prompt-hdr">
+      <span class="fl" style="margin:0">Your agent's instructions</span>
+      <span class="prompt-badge">SYSTEM PROMPT</span>
+    </div>
+    <div class="prompt-box" id="promptBox">Building…</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go(3)">&larr; Back</button>
+      <button class="btn btn-launch" onclick="launch()">Launch My Agent &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── INTAKE FORM (post-launch) ── -->
+  <div class="intake-wrap" id="intakeWrap">
+    <div class="intake-card">
+      <div class="intake-top">
+        <div class="intake-avatar">🧳</div>
+        <div>
+          <div class="intake-title">Your Packing Agent</div>
+          <div class="intake-sub">Tell me about your trip and I'll build your packing list.</div>
+        </div>
+      </div>
+      <div id="intakeFields"><!-- rendered by JS --></div>
+      <button class="build-btn" id="buildBtn" onclick="buildList()">Build My Packing List &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── LOADING ── -->
+  <div class="loading-wrap" id="loadingWrap">
+    <div class="spinner"></div>
+    <div class="loading-title">Building your packing list…</div>
+    <div class="loading-sub">Your agent is reviewing your trip details and connected sources.</div>
+  </div>
+
+  <!-- ── PACKING LIST RESULT ── -->
+  <div class="result-wrap" id="resultWrap">
+    <div class="result-card">
+      <div class="result-top">
+        <div>
+          <div class="result-trip-name" id="resultTitle">Your Packing List</div>
+          <div class="result-trip-meta" id="resultMeta"></div>
+        </div>
+        <button class="result-again" onclick="startOver()">← Build Another</button>
+      </div>
+      <div class="result-body">
+        <div class="list-grid" id="listGrid"></div>
+        <div id="tipsSection"></div>
+      </div>
+      <div class="result-footer">
+        <button class="dl-btn" onclick="downloadList()">Download List</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blueprint bar -->
+  <div class="bp-bar" id="bpBar">
+    <div>
+      <strong>Your Agent Blueprint</strong>
+      <p>Download a summary to take home — paste the system prompt into Claude.ai or ChatGPT to run your agent anytime.</p>
+    </div>
+    <button class="bp-btn" onclick="download()">Download Blueprint</button>
+  </div>
+
+</main>
+<footer>© 2025 Cantellus Group. All Rights Reserved.&nbsp;&nbsp;|&nbsp;&nbsp;Agent Builder Workshop</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  CONFIGURATION — replace with your Anthropic API key
+// ─────────────────────────────────────────────────────────────
+const KEY = 'YOUR_ANTHROPIC_API_KEY_HERE';
+
+// ── State ────────────────────────────────────────────────────
+let step = 1;
+let sysPrompt = '';
+let lastIntake = {};
+let lastResponse = '';
+
+const CONN = {
+  wx:    { url:'', active:false, liveData:null },
+  air:   { url:'', active:false },
+  guide: { url:'', active:false },
+  adv:   { url:'https://travel.state.gov/content/travel/en/traveladvisories', active:true },
+};
+
+// Default activity options
+const actOptions = [
+  'Business meetings','Formal dining','Beach / Swimming',
+  'Hiking / Outdoors','Sightseeing','Casual dining','Cultural sites','Sports / Fitness'
+];
+
+// Show API key field if not hardcoded
+if (!KEY || KEY === 'YOUR_ANTHROPIC_API_KEY_HERE')
+  document.getElementById('apiBar').classList.add('show');
+
+function apiKey(){
+  if (KEY && KEY !== 'YOUR_ANTHROPIC_API_KEY_HERE') return KEY;
+  return document.getElementById('apiInput').value.trim();
+}
+
+// ── Step navigation ──────────────────────────────────────────
+function go(n){
+  document.getElementById('p'+step).classList.remove('active');
+  for(let i=1;i<=4;i++){
+    const num=document.getElementById('sn'+i), lbl=document.getElementById('sl'+i);
+    num.className='s-num'; lbl.className='s-lbl';
+    if(i<n)     {num.classList.add('done');   num.innerHTML='✓';}
+    else if(i===n){num.classList.add('active');num.innerHTML=i;lbl.classList.add('active');}
+    else        {num.classList.add('pend');   num.innerHTML=i;}
+    if(i<4) document.getElementById('sc'+i).className = i<n ? 's-line done':'s-line';
+  }
+  if(n===4) buildPrompt();
+  step=n;
+  document.getElementById('p'+n).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pickTone(el){
+  document.querySelectorAll('.rb-item').forEach(r=>r.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ── Activity tag editor ──────────────────────────────────────
+function renderActTags(){
+  const wrap = document.getElementById('actTags');
+  wrap.innerHTML = actOptions.map((o,i)=>`
+    <div class="act-tag">
+      ${o}
+      <button onclick="removeActivity(${i})" title="Remove">×</button>
+    </div>`).join('');
+}
+function addActivity(){
+  const inp = document.getElementById('actInput');
+  const v = inp.value.trim();
+  if(v && !actOptions.includes(v)){ actOptions.push(v); renderActTags(); }
+  inp.value='';
+}
+function removeActivity(i){
+  actOptions.splice(i,1); renderActTags();
+}
+function toggleActivities(){
+  const on = document.getElementById('f-activities').checked;
+  document.getElementById('actSection').classList.toggle('open', on);
+}
+function toggleField(){ /* triggers re-render on launch */ }
+
+renderActTags();
+
+// ── Connection: Weather live test ────────────────────────────
+async function testWeather(){
+  const btn = document.getElementById('btn-wx');
+  const res = document.getElementById('res-wx');
+  const url = document.getElementById('url-wx').value.trim();
+  btn.disabled=true; btn.textContent='Testing…';
+  res.className='conn-result'; res.style.display='none';
+  try {
+    const r = await fetch('https://wttr.in/New+York?format=j1');
+    if(!r.ok) throw new Error();
+    const d = await r.json();
+    const cur = d.current_condition[0];
+    CONN.wx.url=url; CONN.wx.active=true;
+    CONN.wx.liveData=`${cur.temp_C}°C, ${cur.weatherDesc[0].value} (sample: New York)`;
+    res.textContent=`✓ Live weather API confirmed — ${CONN.wx.liveData}. Your agent will fetch real conditions for your destination.`;
+    res.className='conn-result show ok'; res.style.display='block';
+    document.getElementById('badge-wx').textContent='Connected';
+    document.getElementById('badge-wx').className='conn-badge on';
+    document.getElementById('card-wx').classList.add('live');
+  } catch(e){
+    res.textContent='Connection failed. Check your internet connection and try again.';
+    res.className='conn-result show err'; res.style.display='block';
+  }
+  btn.disabled=false; btn.textContent='Test Connection';
+}
+
+// ── Connection: save URL-only connections ────────────────────
+function saveConn(id){
+  const urlEl = document.getElementById('url-'+id);
+  const url = urlEl?.value.trim();
+  if(!url){ alert('Please enter a URL first.'); return; }
+  CONN[id].url=url; CONN[id].active=true;
+  const res=document.getElementById('res-'+id);
+  res.textContent=`✓ Connected — your agent will reference ${url} for ${id==='air'?'baggage rules':'destination tips'}.`;
+  res.className='conn-result show ok'; res.style.display='block';
+  document.getElementById('badge-'+id).textContent='Connected';
+  document.getElementById('badge-'+id).className='conn-badge on';
+  document.getElementById('card-'+id).classList.add('live');
+}
+
+// ── Build system prompt ──────────────────────────────────────
+function buildPrompt(){
+  const outcome = document.getElementById('outcome').value.trim();
+  const rules   = document.getElementById('rules').value.trim();
+  const tone    = document.querySelector('input[name=tone]:checked')?.value||'friendly and conversational';
+
+  const fEnabled = [];
+  if(document.getElementById('f-triptype')?.checked) fEnabled.push('Trip type (Business / Leisure / Mixed)');
+  if(document.getElementById('f-airline')?.checked)  fEnabled.push('Airline name');
+  if(document.getElementById('f-bag')?.checked)      fEnabled.push('Bag preference (carry-on / checked)');
+  if(document.getElementById('f-activities')?.checked) fEnabled.push(`Planned activities (options: ${actOptions.join(', ')})`);
+  if(document.getElementById('f-companions')?.checked) fEnabled.push('Travel companions (Solo / Couple / Family / Group)');
+  if(document.getElementById('f-notes')?.checked)    fEnabled.push('Special notes / requirements');
+
+  const connLines=[];
+  if(CONN.wx.active)    connLines.push(`  • Weather: ${CONN.wx.url}${CONN.wx.liveData?' [live API active]':''}`);
+  if(CONN.air.active)   connLines.push(`  • Airline baggage: ${CONN.air.url}`);
+  if(CONN.guide.active) connLines.push(`  • Destination guide: ${CONN.guide.url}`);
+  connLines.push(`  • Travel advisories: ${CONN.adv.url}`);
+
+  sysPrompt =
+`════════════════════════════════════════
+AGENT ROLE
+════════════════════════════════════════
+You are a personal travel packing assistant.
+
+YOUR GOAL:
+${outcome}
+
+════════════════════════════════════════
+CONNECTED REFERENCE SOURCES
+════════════════════════════════════════
+Your agent has been connected to the following sources.
+When relevant, reference or recommend these to the user:
+${connLines.join('\n')}
+
+════════════════════════════════════════
+TRIP DATA FORMAT
+════════════════════════════════════════
+You will receive a structured trip form with these fields:
+  • Destination (required)
+  • Travel dates (required)
+${fEnabled.map(f=>`  • ${f}`).join('\n')}
+
+════════════════════════════════════════
+OUTPUT FORMAT
+════════════════════════════════════════
+Return a packing list using this exact structure:
+## [Category Name]
+- Item name (optional note)
+
+Use categories: Clothing, Documents, Electronics, Toiletries, Miscellaneous.
+Add a ## Tips section at the end with 2–3 practical packing tips.
+Be specific — mention the destination, weather, and activities in your tips.
+
+════════════════════════════════════════
+RULES
+════════════════════════════════════════
+${rules||'(none specified)'}
+• Be specific and personal — reference the actual trip details.
+• Flag any items airlines commonly restrict.
+
+TONE: ${tone}.
+════════════════════════════════════════`;
+
+  document.getElementById('promptBox').textContent=sysPrompt;
+}
+
+// ── Launch: render intake form ───────────────────────────────
+function launch(){
+  if(!apiKey()){ alert('Please enter your API key first.'); return; }
+  buildPrompt();
+  // Hide builder
+  document.getElementById('stepper').style.display='none';
+  document.getElementById('p4').style.display='none';
+  // Render and show intake form
+  renderIntakeForm();
+  document.getElementById('intakeWrap').classList.add('show');
+  document.getElementById('bpBar').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Render intake form from config ───────────────────────────
+function renderIntakeForm(){
+  const wrap = document.getElementById('intakeFields');
+  let html='';
+
+  // Destination (required)
+  html+=`<div class="if-group">
+    <label class="if-label">Where are you going?</label>
+    <input type="text" id="if-dest" placeholder="e.g. Paris, France"/>
+  </div>`;
+
+  // Dates (required)
+  html+=`<div class="if-row">
+    <div>
+      <label class="if-label">Departure date</label>
+      <input type="date" id="if-dep"/>
+    </div>
+    <div>
+      <label class="if-label">Return date</label>
+      <input type="date" id="if-ret"/>
+    </div>
+  </div>`;
+
+  // Trip type
+  if(document.getElementById('f-triptype')?.checked){
+    html+=`<div class="if-group">
+      <label class="if-label">Trip type</label>
+      <div class="if-pills" id="pills-triptype">
+        <button class="pill on" onclick="pill('triptype',this,'Business')">💼 Business</button>
+        <button class="pill"    onclick="pill('triptype',this,'Leisure')">🏖 Leisure</button>
+        <button class="pill"    onclick="pill('triptype',this,'Mixed')">⚡ Mixed</button>
+      </div>
+    </div>`;
+  }
+
+  // Airline
+  if(document.getElementById('f-airline')?.checked){
+    html+=`<div class="if-group">
+      <label class="if-label">Which airline are you flying?</label>
+      <input type="text" id="if-airline" placeholder="e.g. Delta, Air France, United"/>
+    </div>`;
+  }
+
+  // Bag preference
+  if(document.getElementById('f-bag')?.checked){
+    html+=`<div class="if-group">
+      <label class="if-label">Bag preference</label>
+      <div class="if-pills" id="pills-bag">
+        <button class="pill on" onclick="pill('bag',this,'Carry-on only')">🎒 Carry-on only</button>
+        <button class="pill"    onclick="pill('bag',this,'Checking a bag')">🧳 Checking a bag</button>
+        <button class="pill"    onclick="pill('bag',this,'Both')">✈️ Both</button>
+      </div>
+    </div>`;
+  }
+
+  // Activities
+  if(document.getElementById('f-activities')?.checked && actOptions.length){
+    const checks = actOptions.map(o=>`
+      <label class="if-check" onclick="toggleCheck(this)">
+        <div class="if-check-box"></div>${o}
+      </label>`).join('');
+    html+=`<div class="if-group">
+      <label class="if-label">What do you have planned?</label>
+      <div class="if-checks" id="if-acts">${checks}</div>
+    </div>`;
+  }
+
+  // Companions
+  if(document.getElementById('f-companions')?.checked){
+    html+=`<div class="if-group">
+      <label class="if-label">Travelling with?</label>
+      <div class="if-pills" id="pills-companions">
+        <button class="pill on" onclick="pill('companions',this,'Solo')">🧍 Solo</button>
+        <button class="pill"    onclick="pill('companions',this,'Couple')">👫 Couple</button>
+        <button class="pill"    onclick="pill('companions',this,'Family')">👨‍👩‍👧 Family</button>
+        <button class="pill"    onclick="pill('companions',this,'Group')">👥 Group</button>
+      </div>
+    </div>`;
+  }
+
+  // Notes
+  if(document.getElementById('f-notes')?.checked){
+    html+=`<div class="if-group">
+      <label class="if-label">Anything else I should know? <span style="font-weight:400;color:var(--g500)">(optional)</span></label>
+      <textarea id="if-notes" rows="2" placeholder="e.g. I travel with a CPAP. I have TSA PreCheck. I prefer to pack light."></textarea>
+    </div>`;
+  }
+
+  wrap.innerHTML=html;
+}
+
+// Pill selection helper
+const pillState={};
+function pill(group, el, val){
+  pillState[group]=val;
+  el.closest('.if-pills').querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// Activity checkbox toggle
+function toggleCheck(el){
+  el.classList.toggle('on');
+  el.querySelector('.if-check-box').textContent = el.classList.contains('on')?'✓':'';
+}
+
+// ── Build and submit packing list ────────────────────────────
+async function buildList(){
+  // Collect intake
+  const dest  = document.getElementById('if-dest')?.value.trim()||'';
+  const dep   = document.getElementById('if-dep')?.value||'';
+  const ret   = document.getElementById('if-ret')?.value||'';
+  if(!dest){ alert('Please enter your destination.'); return; }
+
+  const airline    = document.getElementById('if-airline')?.value.trim()||'';
+  const notes      = document.getElementById('if-notes')?.value.trim()||'';
+  const tripType   = pillState['triptype']||'Not specified';
+  const bag        = pillState['bag']||'Not specified';
+  const companions = pillState['companions']||'Not specified';
+  const acts       = [...(document.querySelectorAll('.if-check.on')||[])].map(e=>e.textContent.trim());
+
+  lastIntake = {dest,dep,ret,tripType,airline,bag,companions,activities:acts,notes};
+
+  // Build message
+  let msg = `TRIP DETAILS:\n`;
+  msg += `Destination: ${dest}\n`;
+  if(dep) msg += `Departure: ${dep}\n`;
+  if(ret) msg += `Return:    ${ret}\n`;
+  msg += `Trip type: ${tripType}\n`;
+  if(airline) msg += `Airline: ${airline}\n`;
+  msg += `Bag preference: ${bag}\n`;
+  if(companions!=='Not specified') msg += `Travelling: ${companions}\n`;
+  if(acts.length) msg += `Activities: ${acts.join(', ')}\n`;
+  if(notes) msg += `Notes: ${notes}\n`;
+  msg += `\nPlease generate my packing list now.`;
+
+  // Show loading
+  document.getElementById('intakeWrap').style.display='none';
+  document.getElementById('loadingWrap').classList.add('show');
+  document.getElementById('buildBtn').disabled=true;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey(),
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:2000,
+        system:sysPrompt,
+        messages:[{role:'user',content:msg}],
+      }),
+    });
+    const data=await res.json();
+    if(!data.content?.[0]?.text) throw new Error(JSON.stringify(data));
+    lastResponse=data.content[0].text;
+    showResult(lastIntake,lastResponse);
+  } catch(e){
+    console.error(e);
+    document.getElementById('loadingWrap').classList.remove('show');
+    document.getElementById('intakeWrap').style.display='block';
+    document.getElementById('buildBtn').disabled=false;
+    alert('Something went wrong. Please check your API key and try again.');
+  }
+}
+
+// ── Display packing list result ──────────────────────────────
+function showResult(intake, text){
+  document.getElementById('loadingWrap').classList.remove('show');
+
+  // Trip meta line
+  document.getElementById('resultTitle').textContent = `Packing List — ${intake.dest}`;
+  const nights = intake.dep && intake.ret
+    ? Math.round((new Date(intake.ret)-new Date(intake.dep))/(1000*60*60*24))
+    : null;
+  document.getElementById('resultMeta').textContent =
+    [intake.dep, nights?`${nights} nights`:'', intake.airline, intake.bag].filter(Boolean).join(' · ');
+
+  // Parse sections
+  const rawSections = text.split(/\n(?=##\s)/);
+  const grid  = document.getElementById('listGrid');
+  const tipsEl = document.getElementById('tipsSection');
+  grid.innerHTML=''; tipsEl.innerHTML='';
+
+  rawSections.forEach(sec=>{
+    const lines = sec.trim().split('\n');
+    const title = lines[0].replace(/^##\s*/,'').trim();
+    const items = lines.slice(1).filter(l=>l.trim().startsWith('-')).map(l=>{
+      const raw = l.replace(/^-\s*/,'').trim();
+      // split "Item (note)"
+      const m = raw.match(/^(.+?)\s*\((.+)\)$/);
+      return m ? `<li>${m[1]} <em>(${m[2]})</em></li>` : `<li>${raw}</li>`;
+    });
+
+    if(title.toLowerCase()==='tips' || title.toLowerCase().startsWith('tip')){
+      const tips = lines.slice(1).filter(l=>l.trim()).map(l=>l.replace(/^[-•*]\s*/,'')).join('<br>');
+      tipsEl.innerHTML=`<div class="tips-section">
+        <div class="tips-section-title">💡 Packing Tips</div>
+        <p>${tips}</p></div>`;
+    } else if(items.length){
+      grid.innerHTML+=`<div class="list-section">
+        <div class="list-section-title">${title}</div>
+        <ul>${items.join('')}</ul></div>`;
+    }
+  });
+
+  document.getElementById('resultWrap').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Start over ───────────────────────────────────────────────
+function startOver(){
+  document.getElementById('resultWrap').classList.remove('show');
+  document.getElementById('intakeWrap').style.display='block';
+  document.getElementById('buildBtn').disabled=false;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Download list ────────────────────────────────────────────
+function downloadList(){
+  const blob=new Blob([`PACKING LIST — ${lastIntake.dest}\n\n${lastResponse}`],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`packing-list-${(lastIntake.dest||'trip').toLowerCase().replace(/\s+/g,'-')}.txt`;
+  a.click();
+}
+
+// ── Blueprint download ───────────────────────────────────────
+function download(){
+  const blob=new Blob([`AGENT BLUEPRINT\nCantellus Group — Agent Builder Workshop\nGenerated: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}\n\n${'═'.repeat(56)}\nSYSTEM PROMPT\n${'═'.repeat(56)}\n${sysPrompt}\n\n${'═'.repeat(56)}\nHOW TO USE\n${'═'.repeat(56)}\n1. Go to claude.ai or chat.openai.com\n2. Start a new conversation\n3. Type: "Please act according to these instructions:" then paste the system prompt above\n4. Your agent will start running exactly as you designed it today\n\n© 2025 Cantellus Group. All Rights Reserved.`],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='my-agent-blueprint.txt'; a.click();
+}
+
+buildPrompt();
+</script>
+</body>
+</html>
