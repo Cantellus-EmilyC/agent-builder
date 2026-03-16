@@ -1097,8 +1097,8 @@
       <div class="intake-top">
         <div class="intake-avatar">🧳</div>
         <div>
-          <div class="intake-title">Your Packing Agent</div>
-          <div class="intake-sub">Tell me about your trip and I will build your packing list.</div>
+          <div class="intake-title" id="intakeTitle">Your Packing Agent</div>
+          <div class="intake-sub" id="intakeSub">Tell me about your trip and I will build your packing list.</div>
         </div>
       </div>
       <div id="intakeFields"></div>
@@ -1154,6 +1154,7 @@ const KEY = 'YOUR_ANTHROPIC_API_KEY_HERE';
 // ── State ────────────────────────────────────────────────────
 let curStep   = 1;
 let sysPrompt = '';
+let staticAppended = false;
 let lastIntake = {};
 let lastResponse = '';
 const CONN = {
@@ -1653,11 +1654,20 @@ function saveConn(id){
 // ── Launch ───────────────────────────────────────────────────
 function launch(){
   if(!apiKey()){ alert('Please enter your API key to launch the agent.'); return; }
-  if(!sysPrompt){ buildFinalPrompt(); }
+  buildFinalPrompt();
   // Update stepper to step 8 and hide build panels
   updateStepper(8);
   curStep = 8;
   for(let i=1;i<=7;i++) document.getElementById('p'+i)?.classList.remove('active');
+  // Dynamic intake header — subtitle derived from agent goal text
+  const goalTxt = (document.getElementById('d-goal')?.value || '').trim();
+  const subEl   = document.getElementById('intakeSub');
+  if(subEl && goalTxt){
+    const first = goalTxt.split(/[.!?]/)[0].trim();
+    subEl.textContent = first.length > 12
+      ? first.charAt(0).toUpperCase() + first.slice(1) + '.'
+      : 'Tell me about your trip and I will build your packing list.';
+  }
   renderIntakeForm();
   document.getElementById('intakeWrap').classList.add('show');
   document.getElementById('bpBar').classList.add('show');
@@ -1665,10 +1675,12 @@ function launch(){
 }
 
 function buildFinalPrompt(){
-  // Add static data if provided
+  if(staticAppended) return;
+  staticAppended = true;
   const extra = document.getElementById('staticData')?.value.trim();
-  if(extra && sysPrompt) sysPrompt += `\n\nADDITIONAL REFERENCE MATERIAL\n${extra}`;
-  else if(extra) sysPrompt = `ADDITIONAL REFERENCE MATERIAL\n${extra}`;
+  if(extra){
+    sysPrompt = (sysPrompt ? sysPrompt + '\n\nADDITIONAL REFERENCE MATERIAL\n' : 'ADDITIONAL REFERENCE MATERIAL\n') + extra;
+  }
 }
 
 // ── Intake form ──────────────────────────────────────────────
@@ -1747,15 +1759,15 @@ async function buildList(){
 
   lastIntake = { dest, dep, ret, trip, airline, bag, activities:acts, notes };
 
-  let msg = `TRIP DETAILS\nDestination: ${dest}\n`;
-  if(dep) msg += `Departure: ${dep}\n`;
-  if(ret) msg += `Return: ${ret}\n`;
-  msg += `Trip type: ${trip}\nBag preference: ${bag}\n`;
-  if(airline) msg += `Airline: ${airline}\n`;
-  if(acts.length) msg += `Activities: ${acts.join(', ')}\n`;
-  if(notes) msg += `Notes: ${notes}\n`;
-  const extra = document.getElementById('staticData')?.value.trim();
-  if(extra) msg += `\nAdditional context provided:\n${extra}\n`;
+  let msg = 'TRIP DETAILS\n';
+  if(collectFields.dest && dest)              msg += `Destination: ${dest}\n`;
+  if(collectFields.dates && dep)              msg += `Departure: ${dep}\n`;
+  if(collectFields.dates && ret)              msg += `Return: ${ret}\n`;
+  if(collectFields.triptype && trip)          msg += `Trip type: ${trip}\n`;
+  if(collectFields.bag && bag)               msg += `Bag preference: ${bag}\n`;
+  if(collectFields.airline && airline)        msg += `Airline: ${airline}\n`;
+  if(collectFields.activities && acts.length) msg += `Activities: ${acts.join(', ')}\n`;
+  if(collectFields.notes && notes)           msg += `Notes: ${notes}\n`;
   msg += '\nPlease generate my packing list now.';
 
   document.getElementById('intakeWrap').style.display = 'none';
