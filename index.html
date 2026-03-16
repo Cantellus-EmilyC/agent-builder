@@ -579,7 +579,7 @@
           <span class="tag tag-gray">Chatting with AI</span>
         </div>
         <div class="compare-item">You provide all the context each time</div>
-        <div class="compare-item">Generic responses, written for anyone</div>
+        <div class="compare-item">Generic responses, less context-specific</div>
         <div class="compare-item">You guide every step of the conversation</div>
         <div class="compare-item">Good for one-off questions</div>
         <div class="compare-item">Starts from scratch every time</div>
@@ -598,7 +598,7 @@
 
     <div class="section-label">What you will build</div>
     <p style="font-size:14px;color:var(--g700);line-height:1.65;margin-bottom:24px">
-      A packing list agent — an AI that asks a traveler a few structured questions and returns a complete, personalized packing list based on their trip. Simple enough to build in under 30 minutes. Practical enough to use in real life.
+      A packing list agent — an AI that asks a traveler a few structured questions and returns a complete, personalized packing list based on their trip. Simple to build; practical to use in real life.
     </p>
 
     <div class="section-label">The process</div>
@@ -661,12 +661,12 @@
     <div class="q-group">
       <div class="q-group-title">1 — The Goal</div>
       <div class="fg">
-        <label class="fl">What should your agent do?</label>
-        <div class="fh">Describe the end result in plain terms, as if explaining it to someone unfamiliar with AI.</div>
+        <label class="fl">What is the agent's purpose?</label>
+        <div class="fh">Describe specifically what you want your agent to achieve quantitatively and qualitatively; details matter.</div>
         <div class="suggest-row">
           <button class="suggest-btn" onclick="useSuggestion('d-goal')">Use suggestion</button>
         </div>
-        <textarea id="d-goal" rows="2" placeholder="Describe what your agent should produce for users…"></textarea>
+        <textarea id="d-goal" rows="2" placeholder="Describe the specific constraints the agent must follow to be successful…"></textarea>
       </div>
       <div class="fg">
         <label class="fl">What does a finished output look like?</label>
@@ -901,7 +901,7 @@
       <div class="plat-options-grid">
         <div class="plat-card" id="orch-sim" onclick="selectPlat('orch','sim',this)">
           <div class="plat-icon">⚙️</div>
-          <div class="plat-name-row"><span class="plat-name">This Simulation</span></div>
+          <div class="plat-name-row"><span class="plat-name">Packing List Simulation Platform</span></div>
           <div class="plat-desc">Manages the flow of information — between the user, the language model, and any connected tools. Ensures your agent follows your design consistently.</div>
           <div class="plat-note">Used in this simulation.</div>
         </div>
@@ -989,28 +989,28 @@
   <div class="panel" id="p5">
     <div class="p-eyebrow build">Build — Step 3 of 4</div>
     <div class="p-title">Give Your Agent What It Needs to Know</div>
-    <div class="p-sub">Agents work with two kinds of information. Understanding the difference is one of the most important concepts in agent design.</div>
+    <div class="p-sub">Agents work with two kinds of information Understanding the difference is one of the most important concepts in agent design.</div>
     <div class="callout">
       The information you provide here is loaded into the agent before any conversation begins. It is available to every user, every time, without the agent needing to ask for it.
     </div>
 
     <div class="info-compare">
       <div class="info-card static">
-        <div class="info-card-title">Built-in information</div>
+        <div class="info-card-title">Static Information</div>
         <p>Provided by you now, before any user interaction. Stays the same across all conversations.</p>
         <ul>
-          <li>Airline carry-on restrictions</li>
+          <li>Wardrobe inventory</li>
           <li>Seasonal packing tips by climate</li>
           <li>Your organization's travel policy</li>
           <li>A standard packing checklist</li>
         </ul>
       </div>
       <div class="info-card dynamic">
-        <div class="info-card-title">Collected in real time</div>
-        <p>Gathered from the user during the conversation. Unique to each person and each request.</p>
+        <div class="info-card-title">Dynamically-Collected Information</div>
+        <p>Gathered from the user during the conversation or in real-time from external data sources. Unique to each person and each request.</p>
         <ul>
-          <li>Travel destination and dates</li>
-          <li>Airline and bag allowance</li>
+          <li>Travel destination, airline and dates</li>
+          <li>Destination climate</li>
           <li>Planned activities</li>
           <li>Personal preferences</li>
         </ul>
@@ -1092,7 +1092,7 @@
             <button class="conn-btn" onclick="saveConn('air')">Connect</button>
           </div>
           <div class="conn-result" id="cr-air"></div>
-          <div class="conn-note">Examples: delta.com/baggage · aa.com/baggage · united.com/baggage</div>
+          <div class="conn-note">Examples: https://delta.com/baggage · https://aa.com/baggage · https://united.com/baggage</div>
         </div>
       </div>
 
@@ -1112,7 +1112,7 @@
             <button class="conn-btn" onclick="saveConn('guide')">Connect</button>
           </div>
           <div class="conn-result" id="cr-guide"></div>
-          <div class="conn-note">Examples: lonelyplanet.com · tripadvisor.com · timeout.com</div>
+          <div class="conn-note">Examples: https://fodors.com · https://tripadvisor.com · https://condenast.com</div>
         </div>
       </div>
 
@@ -1262,7 +1262,7 @@ const actOptions = [
 
 // ── Design page state ────────────────────────────────────────
 const SUGGESTIONS = {
-  goal:   "Build a personalized packing list for any upcoming trip, based on the traveler's destination, travel dates, planned activities, airline, and bag allowance.",
+  goal:   "Build a personalized packing list for any upcoming trip that considers the following constraints: the traveler's destination, travel dates, planned activities, airline, and bag allowance.",
   output: "A packing list organized by category: Clothing, Documents, Electronics, Toiletries, and Miscellaneous. Each item includes a short note where helpful. The list ends with 2 to 3 practical packing tips specific to this trip.",
   scope:  "The agent's scope is limited to generating packing lists for travel. It should not provide medical advice, booking recommendations, destination safety assessments, or financial guidance. If asked about topics outside packing for a trip, it should politely redirect the user back to the task.",
   static: "General packing principles: roll clothes to save space; pack versatile, neutral-colored items that work across multiple outfits; always carry essential documents and medications in your carry-on. Standard carry-on limits are typically 22 x 14 x 9 inches and under 15 lbs, but vary by airline."
@@ -1461,7 +1461,7 @@ function populatePreview(){
           </div>
           <div>
             <p><strong>Orchestration layer</strong></p>
-            <p>This Workshop Platform</p>
+            <p>Packing List Simulation Platform</p>
           </div>
         </div>
       </div>
