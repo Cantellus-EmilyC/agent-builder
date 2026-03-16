@@ -447,6 +447,1956 @@
     .field-row-desc{font-size:12px;color:var(--g400);margin-top:1px}
 
     footer{text-align:center;padding:28px 24px;font-size:12px;color:var(--g400)}
+
+    /* ── Fallback chat ───────────────────────────────────────── */
+    .chat-wrap{display:none;animation:fadeUp .3s ease}
+    .chat-wrap.show{display:block}
+    .chat-card{background:var(--white);border-radius:14px;padding:32px;max-width:640px;margin:0 auto}
+    .chat-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--g200)}
+    .chat-avatar{font-size:22px;width:40px;height:40px;background:var(--pale);border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .chat-title{font-size:15px;font-weight:700;color:var(--navy)}
+    .chat-sub{font-size:12.5px;color:var(--g500);margin-top:1px}
+    .chat-messages{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;max-height:380px;overflow-y:auto}
+    .chat-bubble{padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.55;white-space:pre-wrap;max-width:90%}
+    .chat-bubble.agent{background:var(--pale);color:var(--navy);align-self:flex-start;border-bottom-left-radius:4px}
+    .chat-bubble.user{background:var(--navy);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+    .chat-input-row{display:flex;gap:10px;align-items:flex-end}
+    .chat-input-row textarea{flex:1;border:1.5px solid var(--g200);border-radius:10px;padding:10px 14px;font-size:14px;resize:none;font-family:inherit;color:var(--navy)}
+    .chat-input-row textarea:focus{outline:none;border-color:var(--blue)}
+    .chat-send-btn{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;height:44px}
+    .chat-send-btn:hover{background:var(--blue)}
+    .chat-send-btn:disabled{opacity:.5;cursor:default}
+    .chat-typing{font-size:12.5px;color:var(--g500);font-style:italic;padding:4px 0}
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ════════════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="logo">
+    <img src="cantellus-logo.png" alt="Cantellus Group" class="logo-img"/>
+  </div>
+  <div class="wkshp-tag">Agent Builder</div>
+</header>
+
+<!-- ═══ MAIN ══════════════════════════════════════════════════ -->
+<main class="main">
+
+  <div class="api-bar" id="apiBar">
+    <label>Workshop setup — enter your API key to continue</label>
+    <input type="password" id="apiInput" placeholder="sk-ant-api03-…"/>
+  </div>
+
+  <!-- ── STEPPER ── -->
+  <div class="stepper-outer" id="stepperOuter">
+    <div class="stepper" id="stepper">
+      <div class="s-item">
+        <div class="s-num prep-active" id="sn1">1</div>
+        <div class="s-lbl active" id="sl1">Intro</div>
+      </div>
+      <div class="s-line" id="sc1"></div>
+      <div class="s-item">
+        <div class="s-num prep-pend" id="sn2">2</div>
+        <div class="s-lbl" id="sl2">Design</div>
+      </div>
+      <div class="s-line build-pend" id="sc2"></div>
+      <div class="s-item">
+        <div class="s-num build-pend" id="sn3">3</div>
+        <div class="s-lbl" id="sl3">Platform</div>
+      </div>
+      <div class="s-line build-pend" id="sc3"></div>
+      <div class="s-item">
+        <div class="s-num build-pend" id="sn4">4</div>
+        <div class="s-lbl" id="sl4">Instructions</div>
+      </div>
+      <div class="s-line build-pend" id="sc4"></div>
+      <div class="s-item">
+        <div class="s-num build-pend" id="sn5">5</div>
+        <div class="s-lbl" id="sl5">Information</div>
+      </div>
+      <div class="s-line build-pend" id="sc5"></div>
+      <div class="s-item">
+        <div class="s-num build-pend" id="sn6">6</div>
+        <div class="s-lbl" id="sl6">Tools</div>
+      </div>
+      <div class="s-line build-pend" id="sc6"></div>
+      <div class="s-item">
+        <div class="s-num build-pend" id="sn7">7</div>
+        <div class="s-lbl" id="sl7">Preview</div>
+      </div>
+      <div class="s-line agent-pend" id="sc7"></div>
+      <div class="s-item">
+        <div class="s-num agent-pend" id="sn8">8</div>
+        <div class="s-lbl" id="sl8">Agent</div>
+      </div>
+    </div>
+    <!-- Phase labels: Build covers steps 3-6 only; Preview and Agent are separate -->
+    <div id="buildBand" style="display:flex;margin-top:6px;gap:4px">
+      <div style="flex:2"></div>
+      <div style="flex:4;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+        color:var(--blue);background:rgba(54,112,189,.08);border:1px solid rgba(54,112,189,.2);
+        border-radius:4px;padding:2px 10px;text-align:center">
+        Build
+      </div>
+      <div style="flex:2"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 1: INTRODUCTION
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="panel active" id="p1">
+    <div class="p-eyebrow prep">Overview</div>
+    <div class="p-title">Build Your First AI Agent</div>
+    <div class="p-sub">This hands-on simulation walks you through the process of building an AI agent from scratch — no technical background required. You will end up with a working agent by the end.</div>
+
+    <div class="callout">
+      <strong>This is not the same as chatting with an AI.</strong> Most people have tried asking ChatGPT or Claude a question. Building an agent is a different activity. Here is the key difference.
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-head">
+          <span class="tag tag-gray">Chatting with AI</span>
+        </div>
+        <div class="compare-item">You provide all the context each time</div>
+        <div class="compare-item">Generic responses, written for anyone</div>
+        <div class="compare-item">You guide every step of the conversation</div>
+        <div class="compare-item">Good for one-off questions</div>
+        <div class="compare-item">Starts from scratch every time</div>
+      </div>
+      <div class="compare-col highlight">
+        <div class="compare-head">
+          <span class="tag tag-blue">Building an Agent</span>
+        </div>
+        <div class="compare-item">You design the instructions once, up front</div>
+        <div class="compare-item">Tailored to a specific job and audience</div>
+        <div class="compare-item">The agent follows your design on its own</div>
+        <div class="compare-item">Built for a recurring task or workflow</div>
+        <div class="compare-item">Consistent, repeatable results</div>
+      </div>
+    </div>
+
+    <div class="section-label">What you will build</div>
+    <p style="font-size:14px;color:var(--g700);line-height:1.65;margin-bottom:24px">
+      A packing list agent — an AI that asks a traveller a few structured questions and returns a complete, personalised packing list based on their trip. Simple enough to build in under 30 minutes. Practical enough to use in real life.
+    </p>
+
+    <div class="section-label">The process</div>
+    <div class="process-steps">
+      <div class="proc-group-label">Preparation</div>
+      <div class="proc-item">
+        <div class="proc-num is-prep">1</div>
+        <div><div class="proc-title">Introduction</div><div class="proc-desc">This page. Overview of what agents are and how this simulation works.</div></div>
+      </div>
+      <div class="proc-item">
+        <div class="proc-num is-prep">2</div>
+        <div><div class="proc-title">Design</div><div class="proc-desc">Answer a series of questions to define what your agent will do, how it will behave, and what it will produce.</div></div>
+      </div>
+      <div class="proc-group-label" style="margin-top:6px">Build</div>
+      <div class="proc-item">
+        <div class="proc-num is-build">3</div>
+        <div><div class="proc-title">Platform</div><div class="proc-desc">Select the technology that powers your agent — the AI model and the system that manages the workflow.</div></div>
+      </div>
+      <div class="proc-item">
+        <div class="proc-num is-build">4</div>
+        <div><div class="proc-title">Instructions</div><div class="proc-desc">Turn your design answers into a formal instruction set — the guide your agent will follow in every conversation.</div></div>
+      </div>
+      <div class="proc-item">
+        <div class="proc-num is-build">5</div>
+        <div><div class="proc-title">Information</div><div class="proc-desc">Provide any background knowledge your agent needs before it speaks to a single user.</div></div>
+      </div>
+      <div class="proc-item">
+        <div class="proc-num is-build">6</div>
+        <div><div class="proc-title">Tools</div><div class="proc-desc">Connect your agent to outside resources — live data sources and websites it can reference during a conversation.</div></div>
+      </div>
+      <div class="proc-item">
+        <div class="proc-num is-build">7</div>
+        <div><div class="proc-title">Preview</div><div class="proc-desc">See everything you built assembled in one view — platform, instructions, information, and tools — before you go live.</div></div>
+      </div>
+      <div class="proc-item">
+        <div class="proc-num is-build" style="background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-b)">8</div>
+        <div><div class="proc-title">Agent</div><div class="proc-desc">Your agent launches. Use the intake form to run it and see the packing list it generates.</div></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <div></div>
+      <button class="btn btn-pri" onclick="go(2)">Get Started &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 2: DESIGN VIEW
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="p2">
+    <div class="p-eyebrow prep">Design</div>
+    <div class="p-title">Design Your Agent</div>
+    <div class="p-sub">Before writing a single instruction, define what your agent will do, who it serves, and how it behaves. Your answers here directly shape the agent that gets built in the steps that follow.</div>
+    <div class="callout">
+      <strong>Each question has a suggestion you can use as-is or edit.</strong> Click "Use suggestion" to pre-fill a strong answer, then adjust it to match your thinking. These answers feed directly into your agent's instruction set.
+    </div>
+
+    <!-- Group 1: The Goal -->
+    <div class="q-group">
+      <div class="q-group-title">1 — The Goal</div>
+      <div class="fg">
+        <label class="fl">What should your agent do?</label>
+        <div class="fh">Describe the end result in plain terms, as if explaining it to someone unfamiliar with AI.</div>
+        <div class="suggest-row">
+          <button class="suggest-btn" onclick="useSuggestion('d-goal')">Use suggestion</button>
+        </div>
+        <textarea id="d-goal" rows="2" placeholder="Describe what your agent should produce for users…"></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">What does a finished output look like?</label>
+        <div class="fh">Format, length, structure — be as specific as you can.</div>
+        <div class="suggest-row">
+          <button class="suggest-btn" onclick="useSuggestion('d-output')">Use suggestion</button>
+        </div>
+        <textarea id="d-output" rows="2" placeholder="Describe the format and structure of the response…"></textarea>
+      </div>
+    </div>
+
+    <!-- Group 2: What to Collect -->
+    <div class="q-group">
+      <div class="q-group-title">2 — What to Collect from Users</div>
+      <div class="fg">
+        <label class="fl">Which pieces of information should your agent ask the user for?</label>
+        <div class="fh">Select all that apply. These become the fields in your agent's intake form — only what you select will appear.</div>
+        <div class="field-list">
+          <div class="field-row on" id="fr-dest" onclick="toggleCollect(this,'dest')">
+            <div class="field-row-info">
+              <div class="field-row-name">Destination</div>
+              <div class="field-row-desc">Where the user is going</div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="fc-dest" checked onchange="toggleCollect(document.getElementById('fr-dest'),'dest')"/>
+              <div class="tg-track"></div><div class="tg-thumb"></div>
+            </label>
+          </div>
+          <div class="field-row on" id="fr-dates" onclick="toggleCollect(this,'dates')">
+            <div class="field-row-info">
+              <div class="field-row-name">Travel dates</div>
+              <div class="field-row-desc">Departure and return dates</div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="fc-dates" checked onchange="toggleCollect(document.getElementById('fr-dates'),'dates')"/>
+              <div class="tg-track"></div><div class="tg-thumb"></div>
+            </label>
+          </div>
+          <div class="field-row on" id="fr-triptype" onclick="toggleCollect(this,'triptype')">
+            <div class="field-row-info">
+              <div class="field-row-name">Trip type</div>
+              <div class="field-row-desc">Business, leisure, mixed, etc. — you configure the options below</div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="fc-triptype" checked onchange="toggleCollect(document.getElementById('fr-triptype'),'triptype')"/>
+              <div class="tg-track"></div><div class="tg-thumb"></div>
+            </label>
+          </div>
+          <div class="field-row on" id="fr-airline" onclick="toggleCollect(this,'airline')">
+            <div class="field-row-info">
+              <div class="field-row-name">Airline</div>
+              <div class="field-row-desc">Which carrier the user is flying</div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="fc-airline" checked onchange="toggleCollect(document.getElementById('fr-airline'),'airline')"/>
+              <div class="tg-track"></div><div class="tg-thumb"></div>
+            </label>
+          </div>
+          <div class="field-row on" id="fr-bag" onclick="toggleCollect(this,'bag')">
+            <div class="field-row-info">
+              <div class="field-row-name">Bag preference</div>
+              <div class="field-row-desc">Carry-on only, checking a bag, or both</div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="fc-bag" checked onchange="toggleCollect(document.getElementById('fr-bag'),'bag')"/>
+              <div class="tg-track"></div><div class="tg-thumb"></div>
+            </label>
+          </div>
+          <div class="field-row on" id="fr-activities" onclick="toggleCollect(this,'activities')">
+            <div class="field-row-info">
+              <div class="field-row-name">Planned activities</div>
+              <div class="field-row-desc">What the user has scheduled — you configure the options in Group 5</div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="fc-activities" checked onchange="toggleCollect(document.getElementById('fr-activities'),'activities')"/>
+              <div class="tg-track"></div><div class="tg-thumb"></div>
+            </label>
+          </div>
+          <div class="field-row on" id="fr-notes" onclick="toggleCollect(this,'notes')">
+            <div class="field-row-info">
+              <div class="field-row-name">Notes</div>
+              <div class="field-row-desc">Anything else the user wants the agent to know</div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="fc-notes" checked onchange="toggleCollect(document.getElementById('fr-notes'),'notes')"/>
+              <div class="tg-track"></div><div class="tg-thumb"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trip type options — shown when triptype is checked -->
+      <div class="fg" id="tripTypeConfig">
+        <label class="fl">Trip type options <span style="font-weight:400;color:var(--g500)">(the choices users will see)</span></label>
+        <div class="fh">Add or remove the trip categories that make sense for your travellers.</div>
+        <div class="act-tags" id="tripTypeTags"></div>
+        <div class="act-add-row">
+          <input type="text" id="tripTypeInput" placeholder="Add a trip type…" onkeydown="if(event.key==='Enter')addTripType()"/>
+          <button class="act-add-btn" onclick="addTripType()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group 3: Tone and Format -->
+    <div class="q-group">
+      <div class="q-group-title">3 — How It Communicates</div>
+      <div class="fg">
+        <label class="fl">What tone should the agent use?</label>
+        <div class="rb-grp">
+          <label class="rb-item on" id="tone-practical" onclick="selectRb('tone','practical',this)">
+            <input type="radio" name="d-tone" value="practical" style="display:none"/>
+            <div class="rb-txt">Practical</div>
+            <div style="font-size:12px;color:var(--g500);margin-top:3px">Clear and direct</div>
+          </label>
+          <label class="rb-item" id="tone-friendly" onclick="selectRb('tone','friendly',this)">
+            <input type="radio" name="d-tone" value="friendly" style="display:none"/>
+            <div class="rb-txt">Friendly</div>
+            <div style="font-size:12px;color:var(--g500);margin-top:3px">Warm and encouraging</div>
+          </label>
+          <label class="rb-item" id="tone-detailed" onclick="selectRb('tone','detailed',this)">
+            <input type="radio" name="d-tone" value="detailed" style="display:none"/>
+            <div class="rb-txt">Detailed</div>
+            <div style="font-size:12px;color:var(--g500);margin-top:3px">Thorough and comprehensive</div>
+          </label>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">How should the packing list be structured?</label>
+        <div class="rb-grp">
+          <label class="rb-item on" id="fmt-category" onclick="selectRb('fmt','category',this)">
+            <input type="radio" name="d-fmt" value="category" style="display:none"/>
+            <div class="rb-txt">By category</div>
+            <div style="font-size:12px;color:var(--g500);margin-top:3px">Clothing, docs, electronics…</div>
+          </label>
+          <label class="rb-item" id="fmt-priority" onclick="selectRb('fmt','priority',this)">
+            <input type="radio" name="d-fmt" value="priority" style="display:none"/>
+            <div class="rb-txt">By priority</div>
+            <div style="font-size:12px;color:var(--g500);margin-top:3px">Must-have, nice to have…</div>
+          </label>
+          <label class="rb-item" id="fmt-day" onclick="selectRb('fmt','day',this)">
+            <input type="radio" name="d-fmt" value="day" style="display:none"/>
+            <div class="rb-txt">By day</div>
+            <div style="font-size:12px;color:var(--g500);margin-top:3px">Day 1, Day 2, Day 3…</div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group 4: Background Knowledge -->
+    <div class="q-group">
+      <div class="q-group-title">4 — Background Knowledge</div>
+      <div class="fg">
+        <label class="fl">What should the agent know before any conversation begins?</label>
+        <div class="fh">This is information you provide once — general guidelines, rules, or reference material that stays the same across all conversations.</div>
+        <div class="suggest-row">
+          <button class="suggest-btn" onclick="useSuggestion('d-static')">Use suggestion</button>
+        </div>
+        <textarea id="d-static" rows="3" placeholder="eg. General packing guidelines, airline carry-on rules, seasonal tips by climate…"></textarea>
+      </div>
+    </div>
+
+    <!-- Group 5: Activity Options -->
+    <div class="q-group" id="activityConfig">
+      <div class="q-group-title">5 — Activity Options</div>
+      <div class="fg">
+        <label class="fl">What activity types should users be able to select?</label>
+        <div class="fh">These appear as checkboxes in your agent's intake form. Add or remove options to match your typical traveller.</div>
+        <div class="act-tags" id="actTags"></div>
+        <div class="act-add-row">
+          <input type="text" id="actInput" placeholder="Add an activity…" onkeydown="if(event.key==='Enter')addActivity()"/>
+          <button class="act-add-btn" onclick="addActivity()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go(1)">&larr; Back</button>
+      <button class="btn btn-pri" onclick="go(3)">Next: Choose Your Platform &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 3: PLATFORM
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="p3">
+    <div class="p-eyebrow build">Build — Step 1 of 4</div>
+    <div class="p-title">Choose Your Platform</div>
+    <div class="p-sub">Every AI agent runs on two core components: a language model that understands and generates text, and an orchestration layer that manages the workflow. Both are pre-selected for this simulation.</div>
+    <div class="callout">
+      In a real deployment, you would choose these based on your organisation's needs, existing infrastructure, data privacy requirements, and the technical capabilities of your team.
+    </div>
+
+    <div class="platform-grid">
+      <div class="plat-card selected">
+        <div class="selected-badge">Selected</div>
+        <div class="plat-icon">🧠</div>
+        <div class="plat-role">Language Model</div>
+        <div class="plat-name">Claude by Anthropic</div>
+        <div class="plat-desc">The reasoning engine at the centre of the agent. It reads your instructions, understands what users say, and generates responses. Other options include GPT-4 (OpenAI), Gemini (Google), and Llama (Meta).</div>
+        <div class="plat-note">The language model is what most people think of as "the AI." It does the thinking — but on its own, it cannot run a repeatable workflow without an orchestration layer.</div>
+      </div>
+      <div class="plat-card selected">
+        <div class="selected-badge">Selected</div>
+        <div class="plat-icon">⚙️</div>
+        <div class="plat-role">Orchestration Layer</div>
+        <div class="plat-name">This Workshop Platform</div>
+        <div class="plat-desc">The system that manages the flow of information — between the user, the language model, and any connected tools. It ensures the agent follows your design from one conversation to the next.</div>
+        <div class="plat-note">Think of it as the manager who holds the playbook, routes requests to the right people, and keeps the process consistent. The language model executes — the orchestration layer coordinates.</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go(2)">&larr; Back</button>
+      <button class="btn btn-pri" onclick="go(4)">Next: Write Your Instructions &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 4: INSTRUCTIONS (SYSTEM PROMPT)
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="p4">
+    <div class="p-eyebrow build">Build — Step 2 of 4</div>
+    <div class="p-title">Write Your Agent's Instructions</div>
+    <div class="p-sub">A system prompt is the set of instructions you give the agent before it ever speaks to a user. It defines the agent's purpose, personality, and rules. The user never sees it — but everything the agent does is guided by it.</div>
+    <div class="callout">
+      <strong>Think of it as the employee handbook your agent reads on its first day.</strong> It tells the agent why it exists, what it should do, how it should behave, and what it should never do.
+    </div>
+
+    <div class="section-label">Your design, summarised</div>
+    <div class="design-summary" id="designSummary">
+      <!-- populated by JS -->
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:20px">
+      <button class="btn btn-navy" onclick="generatePrompt()" id="genBtn">
+        ✦ Generate My System Prompt
+      </button>
+      <div id="genSpinner" style="display:none;align-items:center;gap:10px;font-size:13.5px;color:var(--g500)">
+        <div class="spinner" style="width:22px;height:22px;border-width:2px;margin:0"></div>
+        Claude is writing your system prompt…
+      </div>
+      <div id="genError" style="display:none;font-size:13px;color:var(--red);background:#FEF2F2;
+        border:1.5px solid #FECACA;border-radius:8px;padding:10px 14px;width:100%;text-align:center"></div>
+    </div>
+
+    <div id="promptArea" style="display:none">
+      <div class="prompt-hdr">
+        <span class="fl" style="margin:0">Your system prompt</span>
+        <span class="prompt-badge">Generated by Claude</span>
+      </div>
+      <div class="prompt-box show" id="promptBox"></div>
+      <div style="font-size:12px;color:var(--g400);margin-top:6px;font-style:italic">
+        This was written by Claude based on your design choices. You can scroll to read it in full — it will be loaded into your agent exactly as shown.
+      </div>
+    </div>
+
+    <div class="load-area" id="loadArea">
+      <div class="load-info">
+        This system prompt is now ready to be loaded into the agent. In a real deployment, this is where the prompt would be uploaded to your orchestration platform — the manager that ensures every conversation the agent has begins with these instructions already in place.
+      </div>
+      <div style="display:flex;justify-content:center;margin-bottom:12px">
+        <button class="btn btn-pri" onclick="loadPrompt()" id="loadBtn">Load into Agent</button>
+      </div>
+      <div class="load-success" id="loadSuccess">
+        <span>✓</span> System prompt loaded. Your agent has its instructions.
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go(3)">&larr; Back</button>
+      <button class="btn btn-pri" id="nextFromInstr" onclick="go(5)" style="display:none">Next: Add Information &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 5: INFORMATION
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="p5">
+    <div class="p-eyebrow build">Build — Step 3 of 4</div>
+    <div class="p-title">Give Your Agent What It Needs to Know</div>
+    <div class="p-sub">Agents work with two kinds of information. Understanding the difference is one of the most important concepts in agent design.</div>
+    <div class="callout">
+      The information you provide here is loaded into the agent before any conversation begins. It is available to every user, every time, without the agent needing to ask for it.
+    </div>
+
+    <div class="info-compare">
+      <div class="info-card static">
+        <div class="info-card-title">Built-in information</div>
+        <p>Provided by you now, before any user interaction. Stays the same across all conversations.</p>
+        <ul>
+          <li>Airline carry-on restrictions</li>
+          <li>Seasonal packing tips by climate</li>
+          <li>Your organisation's travel policy</li>
+          <li>A standard packing checklist</li>
+        </ul>
+      </div>
+      <div class="info-card dynamic">
+        <div class="info-card-title">Collected in real time</div>
+        <p>Gathered from the user during the conversation. Unique to each person and each request.</p>
+        <ul>
+          <li>Travel destination and dates</li>
+          <li>Airline and bag allowance</li>
+          <li>Planned activities</li>
+          <li>Personal preferences</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Paste any background information your agent should have from the start</label>
+      <div class="fh">Packing guidelines, policies, templates, reference material — anything you want available in every conversation.</div>
+      <textarea id="staticData" rows="5" placeholder="Paste relevant text here — for example, airline baggage rules, a standing packing checklist, seasonal destination tips, or any other reference material the agent should draw on."></textarea>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Or upload a file</label>
+      <div class="fh">PDF or text document. Examples: a wardrobe inventory, a travel policy, a packing guide you already use.</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" accept=".pdf,.txt,.docx" id="fileInput" onchange="handleFile(event)"/>
+        <div class="upload-default">
+          <div class="upload-icon">📄</div>
+          <div class="upload-title">Drag a file here or click to browse</div>
+          <div class="upload-sub">Supports PDF, Word documents, and plain text</div>
+        </div>
+        <div class="upload-name" id="uploadName"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go(4)">&larr; Back</button>
+      <button class="btn btn-pri" onclick="go(6)">Next: Connect Tools &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 6: TOOLS
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="p6">
+    <div class="p-eyebrow build">Build — Step 4 of 4</div>
+    <div class="p-title">Connect Your Agent's Tools</div>
+    <div class="p-sub">Tools give your agent the ability to go beyond what it already knows. Without tools, it can only work with the information it has been given. With tools, it can reach out to live data sources in real time during a conversation.</div>
+    <div class="callout">
+      Enter the URL of any public website or service you want your agent to reference. For this simulation, only publicly accessible resources are used — no logins or sensitive data required.
+    </div>
+
+    <div class="tool-grid">
+
+      <!-- Weather -->
+      <div class="tool-card" id="tc-wx">
+        <div class="tool-head">
+          <div class="tool-icon">🌤</div>
+          <div class="tool-info">
+            <div class="tool-name">Weather Service</div>
+            <div class="tool-desc">Live forecast for any destination</div>
+          </div>
+          <div class="tool-badge off" id="tb-wx">Not connected</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-url-row">
+            <input type="url" id="tu-wx" value="https://weather.com" placeholder="https://weather.com"/>
+            <button class="conn-btn" id="cb-wx" onclick="testWeather()">Test Connection</button>
+          </div>
+          <div class="conn-result" id="cr-wx"></div>
+          <div class="conn-note">Click Test Connection to verify live weather data is available.</div>
+        </div>
+      </div>
+
+      <!-- Airline -->
+      <div class="tool-card" id="tc-air">
+        <div class="tool-head">
+          <div class="tool-icon">✈️</div>
+          <div class="tool-info">
+            <div class="tool-name">Airline Baggage Policy</div>
+            <div class="tool-desc">Bag rules and size or weight limits for a specific carrier</div>
+          </div>
+          <div class="tool-badge off" id="tb-air">Not connected</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-url-row">
+            <input type="url" id="tu-air" placeholder="eg. https://www.delta.com/baggage"/>
+            <button class="conn-btn" onclick="saveConn('air')">Connect</button>
+          </div>
+          <div class="conn-result" id="cr-air"></div>
+          <div class="conn-note">Examples: delta.com/baggage · aa.com/baggage · united.com/baggage</div>
+        </div>
+      </div>
+
+      <!-- Destination guide -->
+      <div class="tool-card" id="tc-guide">
+        <div class="tool-head">
+          <div class="tool-icon">🗺</div>
+          <div class="tool-info">
+            <div class="tool-name">Destination Guide</div>
+            <div class="tool-desc">Local tips, dress codes, and what to expect at the destination</div>
+          </div>
+          <div class="tool-badge off" id="tb-guide">Not connected</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-url-row">
+            <input type="url" id="tu-guide" placeholder="eg. https://www.lonelyplanet.com"/>
+            <button class="conn-btn" onclick="saveConn('guide')">Connect</button>
+          </div>
+          <div class="conn-result" id="cr-guide"></div>
+          <div class="conn-note">Examples: lonelyplanet.com · tripadvisor.com · timeout.com</div>
+        </div>
+      </div>
+
+      <!-- Travel advisories — locked -->
+      <div class="tool-card locked">
+        <div class="tool-head">
+          <div class="tool-icon">🛡</div>
+          <div class="tool-info">
+            <div class="tool-name">Travel Advisories</div>
+            <div class="tool-desc">US State Department — official travel safety information</div>
+          </div>
+          <div class="tool-badge locked">Always on</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-url-row">
+            <input type="url" value="https://travel.state.gov/content/travel/en/traveladvisories" readonly
+              style="background:var(--g100);color:var(--g500);cursor:default"/>
+            <span class="locked-tag">Locked</span>
+          </div>
+          <div class="conn-note">Pre-connected. Your agent will always reference official travel advisories when relevant.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go(5)">&larr; Back</button>
+      <button class="btn btn-pri" onclick="go(7)">Preview My Agent &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PAGE 7: PREVIEW
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="p7">
+    <div class="p-eyebrow build">Build — Step 5 of 5</div>
+    <div class="p-title">Review Your Agent</div>
+    <div class="p-sub">Here is everything you built, assembled in one view. Each component below is part of what your agent will receive when it launches. Review it, then click Launch.</div>
+
+    <div id="previewContent">
+      <!-- Populated by populatePreview() when navigating to this page -->
+    </div>
+
+    <div class="btn-row" style="padding-top:8px">
+      <button class="btn btn-ghost" onclick="go(6)">&larr; Back</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       INTAKE FORM (post-launch)
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="intake-wrap" id="intakeWrap">
+    <div class="intake-card">
+      <div class="intake-top">
+        <div class="intake-avatar">🧳</div>
+        <div>
+          <div class="intake-title" id="intakeTitle">Your Packing Agent</div>
+          <div class="intake-sub" id="intakeSub">Tell me about your trip and I will build your packing list.</div>
+        </div>
+      </div>
+      <div id="intakeFields"></div>
+      <button class="build-btn" id="buildBtn" onclick="buildList()">Build My Packing List &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" id="loadingWrap">
+    <div class="spinner"></div>
+    <div class="loading-title">Building your packing list…</div>
+    <div class="loading-sub">Your agent is reviewing your trip details and connected sources.</div>
+  </div>
+
+  <!-- Fallback chat -->
+  <div class="chat-wrap" id="chatWrap">
+    <div class="chat-card">
+      <div class="chat-header">
+        <div class="chat-avatar">🧳</div>
+        <div>
+          <div class="chat-title">Your Packing Agent</div>
+          <div class="chat-sub">A quick question before your list is ready</div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-row">
+        <textarea id="chatInput" rows="2" placeholder="Type your reply…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatReply()}"></textarea>
+        <button class="chat-send-btn" id="chatSendBtn" onclick="chatReply()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-wrap" id="resultWrap">
+    <div class="result-card">
+      <div class="result-top">
+        <div>
+          <div class="result-name" id="resultTitle">Your Packing List</div>
+          <div class="result-meta" id="resultMeta"></div>
+        </div>
+        <button class="result-again" onclick="startOver()">Build Another</button>
+      </div>
+      <div class="result-body">
+        <div class="list-grid" id="listGrid"></div>
+        <div id="tipsBlock"></div>
+      </div>
+      <div class="result-footer">
+        <button class="dl-btn" onclick="downloadList()">Download List</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blueprint bar -->
+  <div class="bp-bar" id="bpBar">
+    <div>
+      <strong>Your Agent Blueprint</strong>
+      <p>Download a summary to take home. Paste the system prompt into Claude.ai or ChatGPT to run your agent anytime.</p>
+    </div>
+    <button class="bp-btn" onclick="downloadBlueprint()">Download Blueprint</button>
+  </div>
+
+</main>
+<footer>© 2026 Cantellus Group. All Rights Reserved.&nbsp;&nbsp;|&nbsp;&nbsp;Agent Builder</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  CONFIG — replace with your Anthropic API key before deploying
+// ─────────────────────────────────────────────────────────────
+const KEY = 'YOUR_ANTHROPIC_API_KEY_HERE';
+
+// ── State ────────────────────────────────────────────────────
+let curStep   = 1;
+let sysPrompt = '';
+let staticAppended = false;
+let lastIntake = {};
+let lastResponse = '';
+let chatHistory = [];
+const CONN = {
+  wx:    { url:'', active:false, liveData:'' },
+  air:   { url:'', active:false },
+  guide: { url:'', active:false },
+  adv:   { url:'https://travel.state.gov/content/travel/en/traveladvisories', active:true },
+};
+const actOptions = [
+  'Business meetings','Formal dining','Beach or swimming',
+  'Hiking or outdoor activities','Sightseeing','Casual dining',
+  'Cultural sites or museums','Sports or fitness'
+];
+
+// ── Design page state ────────────────────────────────────────
+const SUGGESTIONS = {
+  goal:   "Build a personalised packing list for any upcoming trip, based on the traveller's destination, travel dates, planned activities, airline, and bag allowance.",
+  output: "A packing list organised by category: Clothing, Documents, Electronics, Toiletries, and Miscellaneous. Each item includes a short note where helpful. The list ends with 2 to 3 practical packing tips specific to this trip.",
+  static: "General packing principles: roll clothes to save space; pack versatile, neutral-coloured items that work across multiple outfits; always carry essential documents and medications in your carry-on. Standard carry-on limits are typically 22 x 14 x 9 inches and under 15 lbs, but vary by airline."
+};
+
+function useSuggestion(id){
+  const key = id.replace('d-','');
+  const el  = document.getElementById(id);
+  if(el && SUGGESTIONS[key]){
+    el.value = SUGGESTIONS[key];
+    el.style.borderColor  = 'var(--blue)';
+    el.style.boxShadow    = '0 0 0 3px rgba(54,112,189,.1)';
+    setTimeout(()=>{ el.style.borderColor=''; el.style.boxShadow=''; }, 1800);
+  }
+}
+
+// Which fields appear in the intake form
+const collectFields = {
+  dest:true, dates:true, triptype:true, airline:true,
+  bag:true, activities:true, notes:true
+};
+
+function toggleCollect(el, field){
+  el.classList.toggle('on');
+  const isOn = el.classList.contains('on');
+  // sync the checkbox inside the row
+  const cb = document.getElementById('fc-'+field);
+  if(cb) cb.checked = isOn;
+  collectFields[field] = isOn;
+  if(field === 'triptype')   document.getElementById('tripTypeConfig').style.display  = isOn ? '' : 'none';
+  if(field === 'activities') document.getElementById('activityConfig').style.display  = isOn ? '' : 'none';
+}
+
+// Tone and format radio buttons
+const radioState = { tone:'practical', fmt:'category' };
+function selectRb(group, val, el){
+  radioState[group] = val;
+  el.closest('.rb-grp').querySelectorAll('.rb-item').forEach(r=>r.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// Trip type options (configures pills in intake form)
+const tripTypeOptions = ['Business','Leisure','Mixed'];
+function renderTripTypeTags(){
+  const el = document.getElementById('tripTypeTags');
+  if(!el) return;
+  el.innerHTML = tripTypeOptions.map((o,i)=>
+    `<div class="act-tag">${o}<button onclick="removeTripType(${i})" title="Remove">×</button></div>`
+  ).join('');
+}
+function addTripType(){
+  const inp = document.getElementById('tripTypeInput');
+  const v   = inp.value.trim();
+  if(v && !tripTypeOptions.includes(v)){ tripTypeOptions.push(v); renderTripTypeTags(); }
+  inp.value = '';
+}
+function removeTripType(i){ tripTypeOptions.splice(i,1); renderTripTypeTags(); }
+renderTripTypeTags();
+
+if (!KEY || KEY === 'YOUR_ANTHROPIC_API_KEY_HERE')
+  document.getElementById('apiBar').classList.add('show');
+
+function apiKey(){
+  if (KEY && KEY !== 'YOUR_ANTHROPIC_API_KEY_HERE') return KEY;
+  return document.getElementById('apiInput').value.trim();
+}
+
+// ── Stepper ──────────────────────────────────────────────────
+const PHASE = { 1:'prep', 2:'prep', 3:'build', 4:'build', 5:'build', 6:'build', 7:'prep', 8:'agent' };
+
+function updateStepper(n){
+  for(let i=1;i<=8;i++){
+    const num = document.getElementById('sn'+i);
+    if(!num) continue;
+    const lbl = document.getElementById('sl'+i);
+    const ph  = PHASE[i];
+    num.className = 's-num';
+    lbl.className = 's-lbl';
+    if(i < n){
+      num.classList.add(ph+'-done');
+      num.innerHTML = '&#10003;';
+    } else if(i === n){
+      num.classList.add(ph+'-active');
+      num.innerHTML = i;
+      lbl.classList.add('active');
+    } else {
+      num.classList.add(ph+'-pend');
+      num.innerHTML = i;
+    }
+    if(i < 8){
+      const ln = document.getElementById('sc'+i);
+      if(!ln) continue;
+      const phLine = PHASE[i];
+      if(i < n)   ln.className = 's-line ' + phLine + '-done';
+      else        ln.className = 's-line ' + phLine + '-pend';
+    }
+  }
+}
+
+function go(n){
+  // n=8 is agent — handled by launch(), not a panel
+  if(n === 8){ launch(); return; }
+  document.getElementById('p'+curStep)?.classList.remove('active');
+  updateStepper(n);
+  if(n === 4) populateDesignSummary();
+  if(n === 7) populatePreview();
+  curStep = n;
+  document.getElementById('p'+n)?.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+
+// ── Preview page (scaffold — full content added in Step 4) ──────────────────
+function populatePreview(){
+  const el = document.getElementById('previewContent');
+  if(!el) return;
+
+  const g          = id => document.getElementById(id)?.value?.trim() || '';
+  const staticData = g('staticData');
+  const uploadName = document.getElementById('uploadName')?.textContent?.replace(/^✓\s*/,'').trim() || '';
+  const hasInfo    = staticData || uploadName;
+  const goalText   = g('d-goal') || 'Build a personalised packing list.';
+
+  // ── System prompt section ──
+  const promptOk = !!sysPrompt;
+  const promptSection = promptOk
+    ? `<div class="prev-prompt-box">${sysPrompt.replace(/</g,'&lt;')}</div>`
+    : `<div class="prev-warn-box">
+        No system prompt yet. <a onclick="go(4)">Go back to Instructions</a> and click "Generate My System Prompt" before launching.
+       </div>`;
+
+  // ── Tools section ──
+  const tools = [
+    { name:'Travel Advisories', icon:'🛡', key:'adv',   always:true,  url:'travel.state.gov' },
+    { name:'Weather Service',   icon:'🌤', key:'wx',    always:false },
+    { name:'Airline Baggage',   icon:'✈️', key:'air',   always:false },
+    { name:'Destination Guide', icon:'🗺', key:'guide', always:false },
+  ];
+  const connectedCount = tools.filter(t=>t.always||CONN[t.key]?.active).length;
+  const toolRows = tools.map(t=>{
+    const on  = t.always || CONN[t.key]?.active;
+    const url = t.always ? t.url : (CONN[t.key]?.url || '');
+    return `<div class="prev-tool-row">
+      <div class="prev-dot ${on?'on':'off'}"></div>
+      <span>${t.icon} ${t.name}</span>
+      ${url ? `<span style="font-size:11px;color:var(--g400);flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:4px">${url}</span>` : ''}
+      <span class="prev-tag ${t.always?'lock':on?'on':'off'}">${t.always?'Always on':on?'Connected':'Not connected'}</span>
+    </div>`;
+  }).join('');
+
+  // ── Intake fields section ──
+  const fieldLabels = {dest:'Destination',dates:'Travel dates',triptype:'Trip type',airline:'Airline',bag:'Bag preference',activities:'Activities',notes:'Notes'};
+  const activeFields = Object.entries(collectFields).filter(([k,v])=>v).map(([k])=>fieldLabels[k]);
+  const fieldRows = activeFields.map(name=>
+    `<div class="prev-field-row"><span style="color:var(--green);font-size:12px;margin-right:2px">✓</span> ${name}</div>`
+  ).join('');
+  const tripChips   = tripTypeOptions.map(o=>`<span class="prev-chip">${o}</span>`).join('');
+  const actChips    = actOptions.map(o=>`<span class="prev-chip">${o}</span>`).join('') || '<span style="color:var(--g400);font-size:12.5px;font-style:italic">None configured</span>';
+
+  // ── Tone + format summary ──
+  const toneLabels = {practical:'Practical and direct',friendly:'Friendly and warm',detailed:'Detailed and comprehensive'};
+  const fmtLabels  = {category:'By category',priority:'By priority',day:'By day'};
+
+  el.innerHTML = `
+    <div class="prev-grid">
+
+      <!-- Platform — full width -->
+      <div class="prev-card prev-full">
+        <div class="prev-card-head">
+          <div class="prev-card-title"><span class="pct-icon">⚙️</span> Platform</div>
+          <div class="prev-card-status ok">Ready</div>
+        </div>
+        <div class="prev-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <p><strong>Language model</strong></p>
+            <p>Claude by Anthropic <span style="font-size:11px;color:var(--g400)">(claude-sonnet-4-6)</span></p>
+          </div>
+          <div>
+            <p><strong>Orchestration layer</strong></p>
+            <p>This Workshop Platform</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instructions — full width -->
+      <div class="prev-card prev-full ${promptOk?'':'warn'}">
+        <div class="prev-card-head">
+          <div class="prev-card-title"><span class="pct-icon">📋</span> Instructions — System Prompt</div>
+          <div class="prev-card-status ${promptOk?'ok':'warn'}">${promptOk?'Generated and loaded':'Not yet generated'}</div>
+        </div>
+        <div class="prev-card-body">
+          ${promptSection}
+          ${promptOk ? `<p style="font-size:11.5px;color:var(--g400);margin-top:8px">Scroll to read in full. Your agent will follow these instructions in every conversation.</p>` : ''}
+        </div>
+      </div>
+
+      <!-- Information -->
+      <div class="prev-card">
+        <div class="prev-card-head">
+          <div class="prev-card-title"><span class="pct-icon">📄</span> Information</div>
+          <div class="prev-card-status ${hasInfo?'ok':'pending'}">${hasInfo?'Provided':'None added'}</div>
+        </div>
+        <div class="prev-card-body">
+          ${staticData
+            ? `<p><strong>Background text</strong></p><p style="color:var(--g500);font-size:12.5px">${staticData.substring(0,120)}${staticData.length>120?'…':''}</p>`
+            : `<p style="color:var(--g400);font-style:italic">No background text provided.</p>`}
+          ${uploadName ? `<div class="prev-divider"></div><p><strong>Uploaded file</strong></p><p>${uploadName}</p>` : ''}
+          ${!hasInfo ? `<p style="font-size:12px;color:var(--g400)">Your agent will rely on its training knowledge and connected tools.</p>` : ''}
+        </div>
+      </div>
+
+      <!-- Tools -->
+      <div class="prev-card">
+        <div class="prev-card-head">
+          <div class="prev-card-title"><span class="pct-icon">🔌</span> Tools</div>
+          <div class="prev-card-status ok">${connectedCount} active</div>
+        </div>
+        <div class="prev-card-body">${toolRows}</div>
+      </div>
+
+      <!-- Intake form fields -->
+      <div class="prev-card">
+        <div class="prev-card-head">
+          <div class="prev-card-title"><span class="pct-icon">📝</span> Intake Form Fields</div>
+          <div class="prev-card-status ok">${activeFields.length} fields</div>
+        </div>
+        <div class="prev-card-body">
+          ${fieldRows}
+          ${collectFields.triptype && tripTypeOptions.length ? `<div class="prev-divider"></div><p style="font-size:12px;color:var(--g500)"><strong>Trip type options:</strong> ${tripChips}</p>` : ''}
+        </div>
+      </div>
+
+      <!-- Activity options -->
+      <div class="prev-card">
+        <div class="prev-card-head">
+          <div class="prev-card-title"><span class="pct-icon">🎯</span> Activity Options</div>
+          <div class="prev-card-status ${actOptions.length?'ok':'pending'}">${actOptions.length} configured</div>
+        </div>
+        <div class="prev-card-body">
+          <div style="display:flex;flex-wrap:wrap">${actChips}</div>
+        </div>
+      </div>
+
+      <!-- Style settings -->
+      <div class="prev-card prev-full">
+        <div class="prev-card-head">
+          <div class="prev-card-title"><span class="pct-icon">🎨</span> Style Settings</div>
+          <div class="prev-card-status ok">Configured</div>
+        </div>
+        <div class="prev-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><p><strong>Tone</strong></p><p>${toneLabels[radioState.tone]||radioState.tone}</p></div>
+          <div><p><strong>List structure</strong></p><p>${fmtLabels[radioState.fmt]||radioState.fmt}</p></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Launch bar -->
+    <div class="prev-launch-bar">
+      <div class="prev-launch-text">
+        <strong>Ready to launch${promptOk?'':' — almost'}</strong>
+        <span>${promptOk
+          ? 'All components are assembled. Your agent is ready to go.'
+          : 'Generate your system prompt first, then come back to launch.'}</span>
+      </div>
+      <button class="prev-launch-btn" onclick="${promptOk?'launch()':'go(4)'}" id="launchBtn">
+        ${promptOk?'Launch My Agent →':'Go to Instructions →'}
+      </button>
+    </div>`;
+}
+
+// ── Design summary for Instructions page ────────────────────
+function populateDesignSummary(){
+  const g = id => document.getElementById(id)?.value?.trim() || '';
+  const toneLabels = {practical:'Practical and direct', friendly:'Friendly and warm', detailed:'Detailed and comprehensive'};
+  const fmtLabels  = {category:'By category (Clothing, Docs, Electronics…)', priority:'By priority (Must-have, Nice to have…)', day:'By day'};
+  const fieldNames = {dest:'Destination', dates:'Travel dates', triptype:'Trip type', airline:'Airline', bag:'Bag preference', activities:'Planned activities', notes:'Notes'};
+  const collectedList = Object.entries(collectFields).filter(([k,v])=>v).map(([k])=>fieldNames[k]).filter(Boolean).join(', ');
+
+  const fields = [
+    ['Goal',                g('d-goal')],
+    ['Output format',       g('d-output')],
+    ['Collects from user',  collectedList || '(none selected)'],
+    ['Trip type options',   tripTypeOptions.join(', ')],
+    ['Activity options',    actOptions.join(', ') || '(none configured)'],
+    ['Background knowledge',g('d-static')],
+    ['Tone',                toneLabels[radioState.tone] || radioState.tone],
+    ['List structure',      fmtLabels[radioState.fmt]  || radioState.fmt],
+  ];
+  const el = document.getElementById('designSummary');
+  el.innerHTML = fields.map(([k,v])=>
+    `<div class="ds-row">
+      <div class="ds-key">${k}</div>
+      <div class="ds-val">${v ? v.substring(0,200)+(v.length>200?'…':'') : '<span style="color:var(--g400);font-style:italic">Not answered</span>'}</div>
+    </div>`
+  ).join('');
+}
+
+// ── Generate system prompt ───────────────────────────────────
+async function generatePrompt(){
+  if(!apiKey()){
+    document.getElementById('genError').textContent = 'Please enter your API key at the top of the page first.';
+    document.getElementById('genError').style.display = 'block';
+    return;
+  }
+  document.getElementById('genError').style.display   = 'none';
+  document.getElementById('genBtn').disabled          = true;
+  document.getElementById('genBtn').textContent       = 'Generating…';
+  document.getElementById('genSpinner').style.display = 'flex';
+  document.getElementById('promptArea').style.display = 'none';
+  document.getElementById('loadArea').classList.remove('show');
+  document.getElementById('loadSuccess').classList.remove('show');
+  document.getElementById('nextFromInstr').style.display = 'none';
+  document.getElementById('loadBtn').style.display = 'inline-flex';
+  document.getElementById('loadBtn').disabled = false;
+
+  // Build the meta-prompt — the instructions we send Claude to WRITE the system prompt
+  const g = id => document.getElementById(id)?.value?.trim() || '';
+  const toneMap = {
+    practical: 'clear, practical, and direct — no filler, just what the user needs',
+    friendly:  'warm, friendly, and encouraging — conversational and helpful',
+    detailed:  'thorough and comprehensive — explain reasoning and include extra detail'
+  };
+  const fmtMap = {
+    category: 'organised into categories: Clothing, Documents, Electronics, Toiletries, and Miscellaneous',
+    priority: 'organised by priority: Must-have items first, then Nice to have, then Optional',
+    day:      'organised by day of travel, showing what is needed for each day or leg of the trip'
+  };
+  const fieldNames = {
+    dest:'destination', dates:'departure and return dates', triptype:'trip type',
+    airline:'airline', bag:'bag preference (carry-on, checked, or both)',
+    activities:'planned activities', notes:'any additional notes or special requirements'
+  };
+  const collectList   = Object.entries(collectFields).filter(([k,v])=>v).map(([k])=>fieldNames[k]).filter(Boolean).join(', ');
+  const tripTypeStr   = (collectFields.triptype && tripTypeOptions.length) ? tripTypeOptions.join(', ') : '';
+  const actStr        = (collectFields.activities && actOptions.length) ? actOptions.join(', ') : '';
+  const bgKnowledge   = g('d-static') || 'Apply general packing best practices.';
+  const toolsList     = [
+    'Travel advisories: travel.state.gov',
+    ...(CONN.wx.active    ? ['Weather service: '+CONN.wx.url]    : []),
+    ...(CONN.air.active   ? ['Airline baggage: '+CONN.air.url]   : []),
+    ...(CONN.guide.active ? ['Destination guide: '+CONN.guide.url] : []),
+  ].join('\n');
+
+  const metaPrompt = `You are helping a workshop participant build an AI packing list assistant. Based on their design decisions below, write a complete, professional system prompt for the agent.
+
+THEIR DESIGN DECISIONS:
+
+Goal: ${g('d-goal') || 'Build a personalised packing list for an upcoming trip.'}
+
+What the output should look like: ${g('d-output') || 'A categorised packing list with clothing, documents, electronics, toiletries, and miscellaneous items.'}
+
+Information to collect from the user: ${collectList || 'destination, travel dates, airline, bag preference'}
+${tripTypeStr ? 'Trip type options to offer: '+tripTypeStr+'.' : ''}
+${actStr ? 'Activity options to offer as checkboxes: '+actStr+'.' : ''}
+
+Background knowledge the agent starts with:
+${bgKnowledge}
+
+Packing list structure: ${fmtMap[radioState.fmt] || fmtMap.category}
+
+Tone: ${toneMap[radioState.tone] || toneMap.practical}
+
+Tools the agent has access to:
+${toolsList}
+
+INSTRUCTIONS FOR WRITING THE SYSTEM PROMPT:
+- Write in second person, addressing the agent as "you"
+- Include clear labelled sections: ROLE AND PURPOSE, WHAT YOU DELIVER, INFORMATION TO COLLECT, BACKGROUND KNOWLEDGE, OUTPUT FORMAT, TONE, TOOLS AVAILABLE
+- Be specific and actionable — avoid vague instructions
+- The output format section must specify exactly how the packing list should be structured, using ## headings for each category and a dash (-) for each item
+- Always end with a ## Tips section containing 2 to 3 practical packing tips specific to this trip
+- Keep it under 500 words
+- Return only the system prompt text with no preamble, explanation, or surrounding commentary`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey(),
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: metaPrompt }],
+      }),
+    });
+    const data = await res.json();
+    if(!data.content?.[0]?.text) throw new Error(data.error?.message || 'No response from Claude.');
+    sysPrompt = data.content[0].text.trim();
+    document.getElementById('promptBox').textContent = sysPrompt;
+    document.getElementById('promptArea').style.display = 'block';
+    document.getElementById('loadArea').classList.add('show');
+    document.getElementById('genBtn').textContent = '↺ Regenerate';
+  } catch(err) {
+    document.getElementById('genError').textContent = 'Something went wrong: ' + (err.message || 'unknown error') + '. Check your API key and try again.';
+    document.getElementById('genError').style.display = 'block';
+    document.getElementById('genBtn').textContent = '✦ Generate My System Prompt';
+  } finally {
+    document.getElementById('genBtn').disabled          = false;
+    document.getElementById('genSpinner').style.display = 'none';
+  }
+}
+
+function loadPrompt(){
+  document.getElementById('loadBtn').disabled = true;
+  document.getElementById('loadBtn').textContent = 'Loading…';
+  setTimeout(()=>{
+    document.getElementById('loadSuccess').classList.add('show');
+    document.getElementById('nextFromInstr').style.display = 'inline-flex';
+    document.getElementById('loadBtn').style.display = 'none';
+  }, 1200);
+}
+
+// ── File upload ──────────────────────────────────────────────
+function handleFile(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const zone = document.getElementById('uploadZone');
+  zone.classList.add('has-file');
+  document.getElementById('uploadName').textContent = '✓ ' + f.name + ' uploaded';
+}
+
+// ── Activity tags ────────────────────────────────────────────
+function renderActTags(){
+  document.getElementById('actTags').innerHTML = actOptions.map((o,i)=>
+    `<div class="act-tag">${o}<button onclick="removeActivity(${i})" title="Remove">×</button></div>`
+  ).join('');
+}
+function addActivity(){
+  const inp = document.getElementById('actInput');
+  const v = inp.value.trim();
+  if(v && !actOptions.includes(v)){ actOptions.push(v); renderActTags(); }
+  inp.value = '';
+}
+function removeActivity(i){ actOptions.splice(i,1); renderActTags(); }
+renderActTags();
+
+// ── Tool connections ─────────────────────────────────────────
+async function testWeather(){
+  const btn = document.getElementById('cb-wx');
+  const res = document.getElementById('cr-wx');
+  btn.disabled = true; btn.textContent = 'Testing…';
+  res.className = 'conn-result'; res.style.display = 'none';
+  try {
+    const r = await fetch('https://wttr.in/New+York?format=j1');
+    if(!r.ok) throw new Error();
+    const d = await r.json();
+    const c = d.current_condition[0];
+    CONN.wx.url    = document.getElementById('tu-wx').value;
+    CONN.wx.active = true;
+    CONN.wx.liveData = `${c.temp_C}°C, ${c.weatherDesc[0].value}`;
+    res.textContent = `Live connection confirmed. Sample reading: ${CONN.wx.liveData} (New York). Your agent will fetch real conditions for the user's destination.`;
+    res.className = 'conn-result show ok'; res.style.display = 'block';
+    document.getElementById('tb-wx').textContent = 'Connected';
+    document.getElementById('tb-wx').className   = 'tool-badge active';
+    document.getElementById('tc-wx').classList.add('on');
+  } catch(e){
+    res.textContent = 'Connection failed. Check your internet connection and try again.';
+    res.className = 'conn-result show err'; res.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Test Connection';
+}
+
+function saveConn(id){
+  const url = document.getElementById('tu-'+id)?.value.trim();
+  if(!url){ alert('Please enter a URL first.'); return; }
+  CONN[id] = { url, active:true };
+  const res = document.getElementById('cr-'+id);
+  const names = { air:'airline baggage rules', guide:'destination tips' };
+  res.textContent = `Connected. Your agent will reference ${url} for ${names[id]}.`;
+  res.className = 'conn-result show ok'; res.style.display = 'block';
+  document.getElementById('tb-'+id).textContent = 'Connected';
+  document.getElementById('tb-'+id).className   = 'tool-badge active';
+  document.getElementById('tc-'+id).classList.add('on');
+}
+
+// ── Launch ───────────────────────────────────────────────────
+function launch(){
+  if(!apiKey()){ alert('Please enter your API key to launch the agent.'); return; }
+  buildFinalPrompt();
+  // Update stepper to step 8 and hide build panels
+  updateStepper(8);
+  curStep = 8;
+  for(let i=1;i<=7;i++) document.getElementById('p'+i)?.classList.remove('active');
+  // Dynamic intake header — subtitle derived from agent goal text
+  const goalTxt = (document.getElementById('d-goal')?.value || '').trim();
+  const subEl   = document.getElementById('intakeSub');
+  if(subEl && goalTxt){
+    const first = goalTxt.split(/[.!?]/)[0].trim();
+    subEl.textContent = first.length > 12
+      ? first.charAt(0).toUpperCase() + first.slice(1) + '.'
+      : 'Tell me about your trip and I will build your packing list.';
+  }
+  renderIntakeForm();
+  document.getElementById('intakeWrap').classList.add('show');
+  document.getElementById('bpBar').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function buildFinalPrompt(){
+  if(staticAppended) return;
+  staticAppended = true;
+  const extra = document.getElementById('staticData')?.value.trim();
+  if(extra){
+    sysPrompt = (sysPrompt ? sysPrompt + '\n\nADDITIONAL REFERENCE MATERIAL\n' : 'ADDITIONAL REFERENCE MATERIAL\n') + extra;
+  }
+  // Hardening instruction — always produce a list, never ask questions
+  const hardening = '\n\nIMPORTANT: Always respond with a formatted packing list. Never ask clarifying questions. If any information is incomplete, contradictory, or unusual, make sensible assumptions and note them briefly in a ## Assumptions section at the very top of your response, before the packing categories.';
+  sysPrompt = (sysPrompt || 'You are a packing assistant. Generate a detailed, categorised packing list based on the trip details provided.') + hardening;
+}
+
+// ── Intake form ──────────────────────────────────────────────
+const pillState = {};
+function pill(group, el, val){
+  pillState[group] = val;
+  el.closest('.if-pills').querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+}
+function toggleCheck(el){
+  el.classList.toggle('on');
+  el.querySelector('.if-check-box').textContent = el.classList.contains('on') ? '✓' : '';
+}
+
+function renderIntakeForm(){
+  let h = '';
+  if(collectFields.dest)
+    h += `<div class="if-group">
+      <label class="if-label">Where are you going?</label>
+      <input type="text" id="if-dest" placeholder="eg. Paris, France"/>
+    </div>`;
+  if(collectFields.dates)
+    h += `<div class="if-row">
+      <div><label class="if-label">Departure date</label><input type="date" id="if-dep"/></div>
+      <div><label class="if-label">Return date</label><input type="date" id="if-ret"/></div>
+    </div>`;
+  if(collectFields.triptype && tripTypeOptions.length)
+    h += `<div class="if-group">
+      <label class="if-label">Trip type</label>
+      <div class="if-pills" id="pills-trip">
+        ${tripTypeOptions.map((o,i)=>`<button class="pill${i===0?' on':''}" onclick="pill('trip',this,'${o}')">${o}</button>`).join('')}
+      </div>
+    </div>`;
+  if(collectFields.airline)
+    h += `<div class="if-group">
+      <label class="if-label">Which airline are you flying?</label>
+      <input type="text" id="if-airline" placeholder="eg. Delta, Air France, United"/>
+    </div>`;
+  if(collectFields.bag)
+    h += `<div class="if-group">
+      <label class="if-label">Bag preference</label>
+      <div class="if-pills" id="pills-bag">
+        <button class="pill on" onclick="pill('bag',this,'Carry-on only')">Carry-on only</button>
+        <button class="pill"    onclick="pill('bag',this,'Checking a bag')">Checking a bag</button>
+        <button class="pill"    onclick="pill('bag',this,'Both')">Both</button>
+      </div>
+    </div>`;
+  if(collectFields.activities && actOptions.length)
+    h += `<div class="if-group">
+      <label class="if-label">What do you have planned?</label>
+      <div class="if-checks">
+        ${actOptions.map(o=>`<label class="if-check" onclick="toggleCheck(this)"><div class="if-check-box"></div>${o}</label>`).join('')}
+      </div>
+    </div>`;
+  if(collectFields.notes)
+    h += `<div class="if-group">
+      <label class="if-label">Anything else I should know? <span style="font-weight:400;color:var(--g500)">(optional)</span></label>
+      <textarea id="if-notes" rows="2" placeholder="eg. I travel with a CPAP machine. I have TSA PreCheck. I prefer to pack light."></textarea>
+    </div>`;
+  document.getElementById('intakeFields').innerHTML = h;
+  if(tripTypeOptions[0]) pillState['trip'] = tripTypeOptions[0];
+  pillState['bag'] = 'Carry-on only';
+}
+
+// ── Build packing list ───────────────────────────────────────
+async function buildList(){
+  const dest = document.getElementById('if-dest')?.value.trim();
+  if(!dest){ alert('Please enter your destination.'); return; }
+  const dep   = document.getElementById('if-dep')?.value || '';
+  const ret   = document.getElementById('if-ret')?.value || '';
+  const airline = document.getElementById('if-airline')?.value.trim() || '';
+  const notes   = document.getElementById('if-notes')?.value.trim() || '';
+  const trip    = pillState['trip'] || '';
+  const bag     = pillState['bag']  || '';
+  const acts    = [...document.querySelectorAll('.if-check.on')].map(e=>e.textContent.trim());
+
+  lastIntake = { dest, dep, ret, trip, airline, bag, activities:acts, notes };
+  chatHistory = [];   // reset conversation for each new list build
+
+  let msg = 'TRIP DETAILS\n';
+  if(collectFields.dest && dest)              msg += `Destination: ${dest}\n`;
+  if(collectFields.dates && dep)              msg += `Departure: ${dep}\n`;
+  if(collectFields.dates && ret)              msg += `Return: ${ret}\n`;
+  if(collectFields.triptype && trip)          msg += `Trip type: ${trip}\n`;
+  if(collectFields.bag && bag)               msg += `Bag preference: ${bag}\n`;
+  if(collectFields.airline && airline)        msg += `Airline: ${airline}\n`;
+  if(collectFields.activities && acts.length) msg += `Activities: ${acts.join(', ')}\n`;
+  if(collectFields.notes && notes)           msg += `Notes: ${notes}\n`;
+  msg += '\nPlease generate my packing list now.';
+
+  document.getElementById('intakeWrap').style.display = 'none';
+  document.getElementById('loadingWrap').classList.add('show');
+  document.getElementById('buildBtn').disabled = true;
+
+  chatHistory.push({role:'user', content:msg});
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey(),
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:4096,
+        system:sysPrompt||'You are a packing assistant. Generate a detailed, categorised packing list based on the trip details provided.',
+        messages:chatHistory,
+      }),
+    });
+    const data = await res.json();
+    if(!data.content?.[0]?.text) throw new Error(JSON.stringify(data));
+    const reply = data.content[0].text;
+    chatHistory.push({role:'assistant', content:reply});
+    document.getElementById('loadingWrap').classList.remove('show');
+    if(isPackingList(reply)){
+      lastResponse = reply;
+      showResult(lastIntake, reply);
+    } else {
+      showFallbackChat(reply);
+    }
+  } catch(e){
+    console.error(e);
+    document.getElementById('loadingWrap').classList.remove('show');
+    document.getElementById('intakeWrap').style.display = 'block';
+    document.getElementById('buildBtn').disabled = false;
+    alert('Something went wrong. Please check your API key and try again.');
+  }
+}
+
+// ── Detect whether Claude returned a formatted list ─────────
+function isPackingList(text){
+  return /##\s+\S/.test(text);
+}
+
+// ── Show fallback chat when Claude asks a question ────────────
+function showFallbackChat(agentText){
+  const msgs = document.getElementById('chatMessages');
+  msgs.innerHTML = '';
+  appendChatBubble('agent', agentText);
+  document.getElementById('chatWrap').classList.add('show');
+  document.getElementById('chatInput').value = '';
+  document.getElementById('chatInput').focus();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function appendChatBubble(role, text){
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble ' + role;
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function chatReply(){
+  const input = document.getElementById('chatInput');
+  const userText = input.value.trim();
+  if(!userText) return;
+  input.value = '';
+  const btn = document.getElementById('chatSendBtn');
+  btn.disabled = true;
+  appendChatBubble('user', userText);
+  chatHistory.push({role:'user', content:userText});
+  // Show typing indicator
+  const msgs = document.getElementById('chatMessages');
+  const typing = document.createElement('div');
+  typing.className = 'chat-typing'; typing.id = 'chatTyping';
+  typing.textContent = 'Your agent is thinking…';
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey(),
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:4096,
+        system:sysPrompt,
+        messages:chatHistory,
+      }),
+    });
+    const data = await res.json();
+    document.getElementById('chatTyping')?.remove();
+    if(!data.content?.[0]?.text) throw new Error(JSON.stringify(data));
+    const reply = data.content[0].text;
+    chatHistory.push({role:'assistant', content:reply});
+    if(isPackingList(reply)){
+      // Got the list — switch to results view
+      lastResponse = reply;
+      document.getElementById('chatWrap').classList.remove('show');
+      showResult(lastIntake, reply);
+    } else {
+      appendChatBubble('agent', reply);
+    }
+  } catch(e){
+    console.error(e);
+    document.getElementById('chatTyping')?.remove();
+    appendChatBubble('agent', 'Sorry, something went wrong. Please check your connection and try again.');
+  }
+  btn.disabled = false;
+}
+
+function showResult(intake, text){
+  document.getElementById('loadingWrap').classList.remove('show');
+  document.getElementById('resultTitle').textContent = 'Packing List — ' + intake.dest;
+  const nights = intake.dep && intake.ret
+    ? Math.round((new Date(intake.ret)-new Date(intake.dep))/(1000*60*60*24)) : null;
+  document.getElementById('resultMeta').textContent =
+    [intake.dep, nights ? nights+' nights' : '', intake.airline, intake.bag].filter(Boolean).join(' · ');
+
+  const sections = text.split(/\n(?=##\s)/);
+  const grid = document.getElementById('listGrid');
+  const tips = document.getElementById('tipsBlock');
+  grid.innerHTML = ''; tips.innerHTML = '';
+
+  sections.forEach(sec=>{
+    const lines = sec.trim().split('\n');
+    const title = lines[0].replace(/^##\s*/,'').trim();
+    const items = lines.slice(1).filter(l=>l.trim().startsWith('-')).map(l=>{
+      const raw = l.replace(/^-\s*/,'').trim();
+      const m = raw.match(/^(.+?)\s*\((.+)\)$/);
+      return m ? `<li>${m[1]} <em>(${m[2]})</em></li>` : `<li>${raw}</li>`;
+    });
+    if(title.toLowerCase().startsWith('tip')){
+      const t = lines.slice(1).filter(l=>l.trim()).map(l=>l.replace(/^[-•*]\s*/,'')).join('<br>');
+      tips.innerHTML = `<div class="tips-block"><div class="tips-title">Packing Tips</div><p>${t}</p></div>`;
+    } else if(items.length){
+      grid.innerHTML += `<div class="list-section">
+        <div class="list-section-title">${title}</div>
+        <ul>${items.join('')}</ul></div>`;
+    }
+  });
+  document.getElementById('resultWrap').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function startOver(){
+  document.getElementById('resultWrap').classList.remove('show');
+  document.getElementById('chatWrap').classList.remove('show');
+  document.getElementById('intakeWrap').style.display = 'block';
+  document.getElementById('buildBtn').disabled = false;
+  chatHistory = [];
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function downloadList(){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([`Packing List — ${lastIntake.dest}\n\n${lastResponse}`],{type:'text/plain'}));
+  a.download = `packing-list-${(lastIntake.dest||'trip').toLowerCase().replace(/\s+/g,'-')}.txt`;
+  a.click();
+}
+
+function downloadBlueprint(){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(
+    [`AGENT BLUEPRINT\nCantellus Group — Agent Builder\nGenerated: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}\n\n${'='.repeat(56)}\nSYSTEM PROMPT\n${'='.repeat(56)}\n${sysPrompt}\n\n${'='.repeat(56)}\nHOW TO USE\n${'='.repeat(56)}\n1. Go to claude.ai or chat.openai.com\n2. Start a new conversation\n3. Type: "Please follow these instructions:" then paste the system prompt above\n4. Your agent will run exactly as you designed it today\n\n© 2026 Cantellus Group. All Rights Reserved.`],
+    {type:'text/plain'}
+  ));
+  a.download = 'agent-blueprint.txt';
+  a.click();
+}
+</script>
+</body>
+</html>    .wkshp-tag{color:var(--g500);font-size:11px;font-weight:500;letter-spacing:1.8px;text-transform:uppercase;z-index:1}
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .main{max-width:780px;margin:0 auto;padding:40px 24px 80px}
+
+    /* ── API BAR ─────────────────────────────────────────────── */
+    .api-bar{background:var(--amber-bg);border:1.5px solid var(--amber-b);border-radius:10px;
+      padding:14px 18px;margin-bottom:24px;display:none}
+    .api-bar.show{display:block}
+    .api-bar label{font-size:13px;font-weight:600;color:#92400E;display:block;margin-bottom:6px}
+    .api-bar input{width:100%;padding:9px 13px;border:1.5px solid var(--amber-b);border-radius:7px;
+      font-family:'Inter',monospace;font-size:13px;color:var(--navy);outline:none}
+
+    /* ── STEPPER ─────────────────────────────────────────────── */
+    .stepper-outer{margin-bottom:36px}
+    .stepper{display:flex;align-items:center;position:relative}
+
+    /* Build-phase band behind steps 3-6 */
+    .build-band{
+      position:absolute;bottom:-22px;display:flex;align-items:center;justify-content:center;
+      background:rgba(54,112,189,.08);border:1px solid rgba(54,112,189,.2);
+      border-radius:0 0 6px 6px;padding:3px 0;
+      font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);
+    }
+
+    .s-item{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;z-index:1}
+    .s-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;transition:all .25s}
+    .s-num.prep-done  {background:var(--prep);color:#fff}
+    .s-num.prep-active{background:var(--prep);color:#fff;box-shadow:0 0 0 4px rgba(100,116,139,.2)}
+    .s-num.prep-pend  {background:var(--g200);color:var(--g500)}
+    .s-num.build-done {background:var(--navy);color:#fff}
+    .s-num.build-active{background:var(--blue);color:#fff;box-shadow:0 0 0 4px rgba(54,112,189,.2)}
+    .s-num.build-pend {background:rgba(54,112,189,.12);color:var(--blue);border:1.5px solid rgba(54,112,189,.3)}
+    .s-lbl{font-size:10.5px;font-weight:500;color:var(--g400);white-space:nowrap;text-align:center}
+    .s-lbl.active{color:var(--navy);font-weight:600}
+    .s-line{flex:1;height:2px;background:var(--g200);margin:0 4px;margin-bottom:16px;transition:background .25s;position:relative;z-index:1}
+    .s-line.prep-done {background:var(--prep)}
+    .s-line.build-done{background:var(--navy)}
+    .s-line.build-pend{background:rgba(54,112,189,.2)}
+
+    /* ── PANELS ──────────────────────────────────────────────── */
+    .panel{background:var(--white);border-radius:14px;padding:40px;
+      box-shadow:0 1px 4px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.04);
+      display:none;animation:fadeUp .3s ease}
+    .panel.active{display:block}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    .p-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+    .p-eyebrow.prep {color:var(--prep)}
+    .p-eyebrow.build{color:var(--blue)}
+    .p-title{font-size:24px;font-weight:700;line-height:1.25;margin-bottom:8px}
+    .p-sub  {font-size:15px;color:var(--g500);line-height:1.65;margin-bottom:26px}
+
+    .callout{background:var(--pale);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;
+      padding:13px 17px;margin-bottom:24px;font-size:13.5px;color:var(--navy);line-height:1.65}
+    .callout strong{font-weight:600}
+
+    /* form */
+    .fg{margin-bottom:20px}
+    .fl{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:5px}
+    .fh{font-size:12.5px;color:var(--g500);margin-bottom:6px}
+    textarea,input[type=text],input[type=date],input[type=url],select{
+      width:100%;padding:10px 14px;border:1.5px solid var(--g200);border-radius:8px;
+      font-family:'Inter',sans-serif;font-size:14px;color:var(--navy);background:var(--white);
+      resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s;line-height:1.6}
+    textarea:focus,input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(54,112,189,.1)}
+    textarea{min-height:80px}
+    ::placeholder{color:var(--g400)}
+
+    /* section divider */
+    .section-block{margin-bottom:28px}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+      color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--g100)}
+
+    /* radio */
+    .rb-grp{display:flex;gap:10px}
+    .rb-item{flex:1;padding:12px 14px;border:1.5px solid var(--g200);border-radius:8px;
+      cursor:pointer;text-align:center;transition:all .15s}
+    .rb-item:hover{border-color:var(--blue)}
+    .rb-item.on{border-color:var(--blue);background:var(--pale)}
+    .rb-item input{display:none}
+    .rb-txt{font-size:14px;font-weight:500;color:var(--navy)}
+
+    /* btn row */
+    .btn-row{display:flex;justify-content:space-between;align-items:center;
+      margin-top:28px;padding-top:22px;border-top:1px solid var(--g100)}
+    .btn{padding:10px 24px;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;
+      font-weight:600;cursor:pointer;border:none;transition:all .2s;display:inline-flex;
+      align-items:center;gap:8px}
+    .btn-ghost{background:transparent;color:var(--g500);border:1.5px solid var(--g200)}
+    .btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+    .btn-pri{background:var(--blue);color:#fff}
+    .btn-pri:hover{background:var(--blue-m);transform:translateY(-1px);box-shadow:0 4px 14px rgba(54,112,189,.35)}
+    .btn-navy{background:var(--navy);color:#fff}
+    .btn-navy:hover{background:var(--navy-dk);transform:translateY(-1px);box-shadow:0 6px 20px rgba(27,34,69,.3)}
+
+    /* ── INTRO PAGE ──────────────────────────────────────────── */
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid var(--g200);
+      border-radius:10px;overflow:hidden;margin-bottom:28px}
+    .compare-col{padding:20px 22px}
+    .compare-col:first-child{border-right:1.5px solid var(--g200)}
+    .compare-head{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;
+      display:flex;align-items:center;gap:7px}
+    .compare-head .tag{font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 7px;
+      border-radius:4px;text-transform:uppercase}
+    .compare-head .tag-gray{background:var(--g100);color:var(--g500)}
+    .compare-head .tag-blue{background:var(--pale);color:var(--blue)}
+    .compare-item{font-size:13.5px;color:var(--g700);padding:6px 0;line-height:1.5;
+      display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--g100)}
+    .compare-item:last-child{border-bottom:none}
+    .compare-item::before{content:'';width:6px;height:6px;border-radius:50%;
+      background:var(--g400);flex-shrink:0;margin-top:6px}
+    .compare-col.highlight .compare-item::before{background:var(--blue)}
+
+    .process-steps{display:flex;flex-direction:column;gap:10px}
+    .proc-item{display:flex;align-items:flex-start;gap:14px;padding:13px 16px;
+      background:var(--g50);border:1.5px solid var(--g200);border-radius:9px}
+    .proc-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+    .proc-num.is-prep {background:var(--g200);color:var(--g700)}
+    .proc-num.is-build{background:var(--pale);color:var(--blue);border:1.5px solid var(--lt)}
+    .proc-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:2px}
+    .proc-desc {font-size:13px;color:var(--g500)}
+    .proc-group-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+      color:var(--g400);padding:4px 0 2px}
+
+    /* ── DESIGN VIEW ─────────────────────────────────────────── */
+    /* groups of questions */
+    .q-group{background:var(--g50);border:1.5px solid var(--g200);border-radius:10px;
+      padding:20px 22px;margin-bottom:16px}
+    .q-group-title{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+      color:var(--blue);margin-bottom:14px}
+    .q-group .fg{margin-bottom:16px}
+    .q-group .fg:last-child{margin-bottom:0}
+
+    /* ── PLATFORM PAGE ───────────────────────────────────────── */
+    .platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+    .plat-card{border:1.5px solid var(--g200);border-radius:10px;padding:22px;position:relative}
+    .plat-card.selected{border-color:var(--blue);background:var(--pale)}
+    .selected-badge{position:absolute;top:14px;right:14px;background:var(--blue);color:#fff;
+      font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 8px;border-radius:4px;
+      text-transform:uppercase}
+    .plat-icon{font-size:28px;margin-bottom:10px}
+    .plat-role{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+      color:var(--g500);margin-bottom:4px}
+    .plat-name{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
+    .plat-desc{font-size:13px;color:var(--g500);line-height:1.6}
+    .plat-note{font-size:12.5px;color:var(--g400);background:var(--g50);border:1px solid var(--g200);
+      border-radius:7px;padding:10px 14px;margin-top:12px}
+
+    /* ── INSTRUCTIONS PAGE ───────────────────────────────────── */
+    .design-summary{background:var(--g50);border:1.5px solid var(--g200);border-radius:10px;
+      padding:20px;margin-bottom:20px}
+    .ds-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--g100);
+      font-size:13.5px}
+    .ds-row:last-child{border-bottom:none}
+    .ds-key{font-weight:600;color:var(--navy);min-width:160px;flex-shrink:0}
+    .ds-val{color:var(--g700);line-height:1.5}
+    .prompt-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .prompt-badge{background:var(--navy);color:#fff;font-size:10px;font-weight:700;
+      letter-spacing:1px;padding:3px 9px;border-radius:4px}
+    .prompt-box{background:var(--g50);border:1.5px solid var(--g200);border-radius:9px;
+      padding:18px;font-size:12.5px;line-height:1.8;color:var(--navy);white-space:pre-wrap;
+      word-break:break-word;max-height:300px;overflow-y:auto;font-family:'Inter',monospace;
+      display:none}
+    .prompt-box.show{display:block;animation:fadeUp .3s ease}
+    .load-area{display:none;margin-top:16px}
+    .load-area.show{display:block;animation:fadeUp .3s ease}
+    .load-info{font-size:13.5px;color:var(--g700);background:var(--g50);border:1.5px solid var(--g200);
+      border-radius:8px;padding:13px 16px;margin-bottom:12px;line-height:1.6}
+    .load-success{display:none;padding:12px 16px;background:var(--green-bg);
+      border:1.5px solid var(--green-b);border-radius:8px;
+      font-size:14px;font-weight:600;color:var(--green)}
+    .load-success.show{display:flex;align-items:center;gap:8px;animation:fadeUp .3s ease}
+
+    /* ── INFORMATION PAGE ───────────────────────────────────── */
+    .info-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+    .info-card{border-radius:9px;padding:16px 18px;border:1.5px solid var(--g200)}
+    .info-card.static {background:var(--pale);border-color:var(--lt)}
+    .info-card.dynamic{background:var(--g50)}
+    .info-card-title{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+      margin-bottom:6px}
+    .info-card.static .info-card-title{color:var(--blue)}
+    .info-card.dynamic .info-card-title{color:var(--g500)}
+    .info-card p{font-size:13.5px;color:var(--g700);line-height:1.6;margin-bottom:8px}
+    .info-card ul{list-style:none;font-size:12.5px;color:var(--g500)}
+    .info-card li{padding:2px 0;display:flex;gap:6px}
+    .info-card li::before{content:'eg.';font-size:10px;font-weight:700;color:var(--g400);
+      text-transform:uppercase;margin-top:3px;white-space:nowrap}
+
+    .upload-zone{border:2px dashed var(--g200);border-radius:9px;padding:28px;text-align:center;
+      cursor:pointer;transition:all .2s;background:var(--white);position:relative}
+    .upload-zone:hover{border-color:var(--blue);background:var(--pale)}
+    .upload-zone.has-file{border-color:var(--green);background:var(--green-bg)}
+    .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .upload-icon{font-size:28px;margin-bottom:8px}
+    .upload-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px}
+    .upload-sub  {font-size:13px;color:var(--g500)}
+    .upload-name {font-size:14px;font-weight:600;color:var(--green);display:none}
+    .upload-zone.has-file .upload-name{display:block}
+    .upload-zone.has-file .upload-default{display:none}
+
+    /* ── TOOLS PAGE ──────────────────────────────────────────── */
+    .tool-grid{display:flex;flex-direction:column;gap:10px}
+    .tool-card{border:1.5px solid var(--g200);border-radius:10px;overflow:hidden;transition:border-color .2s}
+    .tool-card.on{border-color:var(--blue)}
+    .tool-card.locked{border-color:var(--green)}
+    .tool-head{display:flex;align-items:center;gap:12px;padding:16px}
+    .tool-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;
+      justify-content:center;font-size:18px;flex-shrink:0;background:var(--pale)}
+    .tool-info{flex:1}
+    .tool-name{font-size:14px;font-weight:600;color:var(--navy)}
+    .tool-desc{font-size:12.5px;color:var(--g500);margin-top:1px}
+    .tool-badge{font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;flex-shrink:0;white-space:nowrap}
+    .tool-badge.off   {background:var(--g100);color:var(--g500)}
+    .tool-badge.active{background:var(--pale);color:var(--blue);border:1px solid var(--lt)}
+    .tool-badge.locked{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+    .tool-body{border-top:1.5px solid var(--g100);padding:16px;background:var(--g50)}
+    .tool-url-row{display:flex;gap:8px;align-items:center}
+    .tool-url-row input{flex:1;font-size:13px;padding:9px 12px}
+    .conn-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;
+      padding:9px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+      cursor:pointer;white-space:nowrap;transition:background .2s;flex-shrink:0}
+    .conn-btn:hover{background:var(--blue-m)}
+    .conn-btn:disabled{opacity:.5;cursor:not-allowed}
+    .conn-result{margin-top:9px;font-size:13px;line-height:1.5;display:none}
+    .conn-result.show{display:block}
+    .conn-result.ok {color:var(--green)}
+    .conn-result.err{color:var(--red)}
+    .conn-note{font-size:12px;color:var(--g400);margin-top:5px;font-style:italic}
+    .locked-tag{background:var(--navy);color:#fff;font-size:10px;font-weight:700;
+      padding:3px 8px;border-radius:4px;letter-spacing:.5px}
+
+    /* ── TOGGLE SWITCH ───────────────────────────────────────── */
+    .toggle{position:relative;width:38px;height:20px;flex-shrink:0;cursor:pointer}
+    .toggle input{opacity:0;width:0;height:0}
+    .tg-track{position:absolute;inset:0;background:var(--g200);border-radius:10px;transition:.2s}
+    .toggle input:checked + .tg-track{background:var(--blue)}
+    .tg-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;
+      border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .toggle input:checked ~ .tg-thumb{left:20px}
+
+    /* ── INTAKE FORM ─────────────────────────────────────────── */
+    .intake-wrap{display:none;animation:fadeUp .3s ease}
+    .intake-wrap.show{display:block}
+    .intake-card{background:var(--white);border-radius:14px;padding:40px;
+      box-shadow:0 1px 4px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.04)}
+    .intake-top{display:flex;align-items:center;gap:16px;margin-bottom:28px;
+      padding-bottom:22px;border-bottom:1px solid var(--g100)}
+    .intake-avatar{width:50px;height:50px;background:var(--pale);border-radius:12px;
+      display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+    .intake-title{font-size:21px;font-weight:700;color:var(--navy)}
+    .intake-sub  {font-size:14px;color:var(--g500);margin-top:3px}
+    .if-group{margin-bottom:22px}
+    .if-label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:7px}
+    .if-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+    .if-pills{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{background:var(--g100);color:var(--g700);border:1.5px solid var(--g200);
+      border-radius:20px;padding:8px 18px;font-family:'Inter',sans-serif;font-size:14px;
+      font-weight:500;cursor:pointer;transition:all .15s}
+    .pill:hover{border-color:var(--blue);background:var(--pale);color:var(--navy)}
+    .pill.on{background:var(--pale);border-color:var(--blue);color:var(--navy);font-weight:600}
+    .if-checks{display:flex;flex-wrap:wrap;gap:8px}
+    .if-check{display:flex;align-items:center;gap:7px;background:var(--g100);
+      border:1.5px solid var(--g200);border-radius:8px;padding:9px 14px;cursor:pointer;
+      font-size:14px;font-weight:500;color:var(--g700);transition:all .15s;user-select:none}
+    .if-check:hover{border-color:var(--blue);background:var(--pale);color:var(--navy)}
+    .if-check.on{border-color:var(--blue);background:var(--pale);color:var(--navy);font-weight:600}
+    .if-check-box{width:15px;height:15px;border:2px solid var(--g400);border-radius:3px;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:9px}
+    .if-check.on .if-check-box{background:var(--blue);border-color:var(--blue);color:#fff}
+    .build-btn{width:100%;padding:15px;background:var(--navy);color:#fff;border:none;
+      border-radius:10px;font-family:'Inter',sans-serif;font-size:16px;font-weight:700;
+      cursor:pointer;transition:all .2s;margin-top:6px}
+    .build-btn:hover{background:var(--navy-dk);transform:translateY(-1px);box-shadow:0 6px 20px rgba(27,34,69,.3)}
+    .build-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+    /* ── LOADING + RESULT ────────────────────────────────────── */
+    .loading-wrap{display:none;text-align:center;padding:56px 24px}
+    .loading-wrap.show{display:block;animation:fadeUp .3s ease}
+    .spinner{width:42px;height:42px;border:3px solid var(--lt);border-top-color:var(--blue);
+      border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 18px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-title{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:5px}
+    .loading-sub{font-size:14px;color:var(--g500)}
+    .result-wrap{display:none;animation:fadeUp .3s ease}
+    .result-wrap.show{display:block}
+    .result-card{background:var(--white);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.04);overflow:hidden}
+    .result-top{background:var(--navy);padding:22px 30px;display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+    .result-name{font-size:19px;font-weight:700;color:#fff}
+    .result-meta{font-size:13px;color:rgba(255,255,255,.55);margin-top:4px}
+    .result-again{background:rgba(255,255,255,.12);color:#fff;border:1.5px solid rgba(255,255,255,.25);
+      border-radius:7px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:13px;
+      font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s;flex-shrink:0}
+    .result-again:hover{background:rgba(255,255,255,.22)}
+    .result-body{padding:24px 30px}
+    .list-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:560px){.list-grid{grid-template-columns:1fr}}
+    .list-section{background:var(--g50);border:1.5px solid var(--g200);border-radius:9px;padding:15px 17px}
+    .list-section-title{font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.8px;margin-bottom:9px}
+    .list-section ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+    .list-section li{font-size:13.5px;color:var(--navy);line-height:1.5;display:flex;align-items:flex-start;gap:7px}
+    .list-section li::before{content:'·';color:var(--lt);font-size:18px;margin-top:-2px;flex-shrink:0}
+    .list-section li em{color:var(--g500);font-style:normal;font-size:12.5px}
+    .tips-block{margin-top:14px;background:var(--pale);border:1.5px solid var(--lt);border-radius:9px;padding:15px 17px}
+    .tips-title{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+    .tips-block p{font-size:13.5px;color:var(--g700);line-height:1.65}
+    .result-footer{display:flex;gap:10px;padding:0 30px 22px;justify-content:flex-end}
+    .dl-btn{background:var(--pale);color:var(--blue);border:1.5px solid var(--lt);
+      border-radius:7px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+    .dl-btn:hover{background:var(--lt)}
+
+    /* ── ACTIVITY TAGS ───────────────────────────────────────── */
+    .act-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+    .act-tag{display:flex;align-items:center;gap:5px;background:var(--white);
+      border:1.5px solid var(--lt);border-radius:20px;padding:5px 10px 5px 13px;
+      font-size:13px;font-weight:500;color:var(--navy)}
+    .act-tag button{background:none;border:none;cursor:pointer;color:var(--g400);font-size:14px;line-height:1;padding:0}
+    .act-tag button:hover{color:var(--red)}
+    .act-add-row{display:flex;gap:8px}
+    .act-add-row input{flex:1;padding:8px 12px;font-size:13px}
+    .act-add-btn{background:var(--navy);color:#fff;border:none;border-radius:7px;
+      padding:8px 15px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+
+    /* ── BLUEPRINT BAR ───────────────────────────────────────── */
+    .bp-bar{margin-top:12px;background:var(--pale);border:1.5px solid var(--lt);border-radius:10px;
+      padding:14px 18px;display:none;align-items:center;justify-content:space-between;gap:14px}
+    .bp-bar.show{display:flex}
+    .bp-bar strong{font-size:14px;font-weight:600;color:var(--navy)}
+    .bp-bar p{font-size:12.5px;color:var(--g500);margin-top:2px}
+    .bp-btn{background:var(--navy);color:#fff;border:none;border-radius:7px;
+      padding:9px 18px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
+    .bp-btn:hover{background:var(--navy-dk)}
+
+
+    /* agent phase in stepper */
+    .s-num.agent-active{background:var(--green);color:#fff;box-shadow:0 0 0 4px rgba(16,185,129,.2)}
+    .s-num.agent-pend  {background:rgba(16,185,129,.12);color:var(--green);border:1.5px solid rgba(16,185,129,.3)}
+    .s-num.agent-done  {background:var(--green);color:#fff}
+    .s-line.agent-done {background:var(--green)}
+    .s-line.agent-pend {background:rgba(16,185,129,.2)}
+
+    /* preview page */
+    .prev-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+    .prev-full{grid-column:1/-1}
+    .prev-card{border:1.5px solid var(--g200);border-radius:11px;padding:18px 20px;background:var(--white);display:flex;flex-direction:column;gap:0}
+    .prev-card.warn{border-color:var(--amber-b);background:var(--amber-bg)}
+    .prev-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .prev-card-title{font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:6px}
+    .prev-card-title .pct-icon{font-size:14px}
+    .prev-card-status{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;white-space:nowrap}
+    .prev-card-status.ok     {background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+    .prev-card-status.pending{background:var(--g100);color:var(--g500);border:1px solid var(--g200)}
+    .prev-card-status.warn   {background:var(--amber-bg);color:#92400E;border:1px solid var(--amber-b)}
+    .prev-card-body{font-size:13px;color:var(--g700);line-height:1.65}
+    .prev-card-body strong{color:var(--navy);font-weight:600}
+    .prev-card-body p{margin-bottom:5px}
+    .prev-card-body p:last-child{margin-bottom:0}
+    .prev-divider{height:1px;background:var(--g100);margin:10px 0}
+    .prev-prompt-box{background:var(--g50);border:1px solid var(--g200);border-radius:7px;
+      padding:12px 14px;font-size:11.5px;color:var(--navy);font-family:'Courier New',monospace;
+      white-space:pre-wrap;word-break:break-word;max-height:160px;overflow-y:auto;line-height:1.7}
+    .prev-warn-box{font-size:13px;color:#92400E;line-height:1.6}
+    .prev-warn-box a{color:var(--blue);cursor:pointer;text-decoration:underline}
+    .prev-tool-row{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--g700);
+      padding:6px 0;border-bottom:1px solid var(--g100)}
+    .prev-tool-row:last-child{border-bottom:none;padding-bottom:0}
+    .prev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .prev-dot.on {background:var(--green)}
+    .prev-dot.off{background:var(--g200);border:1px solid var(--g400)}
+    .prev-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:auto;white-space:nowrap}
+    .prev-tag.on  {background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+    .prev-tag.off {background:var(--g100);color:var(--g500)}
+    .prev-tag.lock{background:var(--pale);color:var(--blue);border:1px solid var(--lt)}
+    .prev-chip{background:var(--pale);border:1px solid var(--lt);border-radius:12px;
+      padding:3px 10px;font-size:12px;color:var(--navy);display:inline-block;margin:2px}
+    .prev-field-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--g700);
+      padding:5px 0;border-bottom:1px solid var(--g100)}
+    .prev-field-row:last-child{border-bottom:none}
+    .prev-launch-bar{background:var(--navy);border-radius:11px;padding:22px 24px;
+      display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:4px}
+    .prev-launch-text strong{font-size:16px;font-weight:700;color:#fff;display:block;margin-bottom:3px}
+    .prev-launch-text span{font-size:13px;color:rgba(255,255,255,.6)}
+    .prev-launch-btn{background:var(--green);color:#fff;border:none;border-radius:9px;
+      padding:13px 28px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;
+      cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+    .prev-launch-btn:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 6px 20px rgba(16,185,129,.35)}
+
+
+    /* ── SUGGEST BUTTON ──────────────────────────────────────── */
+    .suggest-row{margin-bottom:8px}
+    .suggest-btn{background:var(--pale);border:1.5px solid var(--lt);border-radius:20px;
+      padding:5px 14px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
+      color:var(--blue);cursor:pointer;transition:all .15s;
+      display:inline-flex;align-items:center;gap:6px}
+    .suggest-btn::before{content:'✦';font-size:10px;opacity:.7}
+    .suggest-btn:hover{background:var(--lt);border-color:var(--blue-m)}
+
+    /* ── FIELD TOGGLE LIST (Design page Group 2) ─────────────── */
+    .field-list{display:flex;flex-direction:column;gap:5px;margin-top:6px;margin-bottom:2px}
+    .field-row{display:flex;align-items:center;justify-content:space-between;gap:14px;
+      padding:11px 16px;border:1.5px solid var(--g200);border-radius:9px;
+      background:var(--white);cursor:pointer;transition:all .15s;user-select:none}
+    .field-row:hover{border-color:var(--blue);background:var(--pale)}
+    .field-row.on{border-color:var(--blue);background:var(--pale)}
+    .field-row.on .field-row-name{color:var(--navy)}
+    .field-row-info{flex:1}
+    .field-row-name{font-size:13.5px;font-weight:600;color:var(--g700);transition:color .15s}
+    .field-row-desc{font-size:12px;color:var(--g400);margin-top:1px}
+
+    footer{text-align:center;padding:28px 24px;font-size:12px;color:var(--g400)}
   </style>
 </head>
 <body>
